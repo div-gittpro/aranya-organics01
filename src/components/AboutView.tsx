@@ -15,6 +15,9 @@ import bhumikaCertificateSoapFormulation from '../assests/bhumika_certificate_so
 import bhumikaCertificateThemedSoap from '../assests/bhumika_certificate_themed_soap.jpg';
 import nidhiCertificateAyurvedicCosmetics from '../assests/nidhi_certificate_ayurvedic_cosmetics.jpg';
 import nidhiCertificateWhiteningCream from '../assests/nidhi_certificate_whitening_cream.jpg';
+import companyCertificateUdyamRegistration from '../assests/company_certificate_udyam_registration.png';
+import companyCertificateShopEstablishment from '../assests/company_certificate_shop_establishment.png';
+import companyCertificateIso9001 from '../assests/company_certificate_iso_9001.jpg';
 
 const bhumikaCertificates = [
   { src: bhumikaCertificateSoapWorkshop, alt: 'Bhumika soap making workshop certificate' },
@@ -33,11 +36,19 @@ const nidhiCertificates = [
   { src: nidhiCertificateWhiteningCream, alt: 'Nidhi whitening cream workshop certificate' },
 ];
 
+const companyCertificates = [
+  { src: companyCertificateUdyamRegistration, alt: 'Aranya Organic Udyam registration certificate' },
+  { src: companyCertificateShopEstablishment, alt: 'Aranya Organic shop and establishment intimation receipt' },
+  { src: companyCertificateIso9001, alt: 'Aranya Organic ISO 9001 quality management certificate' },
+];
+
 export default function AboutView() {
   const [showBhumikaCertificates, setShowBhumikaCertificates] = useState(false);
   const [showNidhiCertificates, setShowNidhiCertificates] = useState(false);
+  const [showCompanyCertificates, setShowCompanyCertificates] = useState(false);
   const [activeBhumikaCertificateIndex, setActiveBhumikaCertificateIndex] = useState(0);
   const [activeNidhiCertificateIndex, setActiveNidhiCertificateIndex] = useState(0);
+  const [activeCompanyCertificateIndex, setActiveCompanyCertificateIndex] = useState(0);
 
   const showPreviousCertificate = () => {
     setActiveBhumikaCertificateIndex((current) =>
@@ -60,6 +71,18 @@ export default function AboutView() {
   const showNextNidhiCertificate = () => {
     setActiveNidhiCertificateIndex((current) =>
       current === nidhiCertificates.length - 1 ? 0 : current + 1
+    );
+  };
+
+  const showPreviousCompanyCertificate = () => {
+    setActiveCompanyCertificateIndex((current) =>
+      current === 0 ? companyCertificates.length - 1 : current - 1
+    );
+  };
+
+  const showNextCompanyCertificate = () => {
+    setActiveCompanyCertificateIndex((current) =>
+      current === companyCertificates.length - 1 ? 0 : current + 1
     );
   };
 
@@ -231,6 +254,20 @@ export default function AboutView() {
                   View Certificates
                 </button>
               </div>
+
+              <div className="flex justify-center md:justify-start">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveCompanyCertificateIndex(0);
+                    setShowCompanyCertificates(true);
+                  }}
+                  className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 font-sans text-xs font-extrabold uppercase tracking-widest text-white shadow-lg transition-all duration-300 hover:bg-primary/90 hover:shadow-xl"
+                >
+                  <Eye className="h-4 w-4" />
+                  View Company Certificates
+                </button>
+              </div>
             </div>
 
           </div>
@@ -352,6 +389,69 @@ export default function AboutView() {
                 <button
                   type="button"
                   onClick={() => setShowNidhiCertificates(false)}
+                  className="inline-flex h-10 items-center gap-2 rounded-full bg-primary px-5 font-sans text-xs font-extrabold uppercase tracking-widest text-white shadow-md transition-colors hover:bg-primary/90"
+                >
+                  <X className="h-4 w-4" />
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {showCompanyCertificates && (
+          <div className="fixed inset-0 z-[999] flex items-center justify-center bg-primary/70 p-4 backdrop-blur-sm">
+            <div className="relative w-full max-w-4xl rounded-2xl border border-secondary/30 bg-white p-4 pt-14 shadow-2xl md:p-6 md:pt-16">
+              <div className="absolute right-4 top-4 flex items-center gap-3">
+                <span className="font-sans text-xs font-bold uppercase tracking-widest text-secondary">
+                  Company
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setShowCompanyCertificates(false)}
+                  className="inline-flex h-9 items-center gap-1.5 rounded-full border border-secondary/30 bg-white px-3 font-sans text-xs font-bold uppercase tracking-wider text-primary shadow-sm transition-colors hover:bg-secondary/10"
+                  aria-label="Close certificates"
+                >
+                  <X className="h-4 w-4" />
+                  Close
+                </button>
+              </div>
+
+              <div className="flex items-center gap-3 md:gap-5">
+                <button
+                  type="button"
+                  onClick={showPreviousCompanyCertificate}
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-secondary/30 bg-white text-primary shadow-sm transition-colors hover:bg-secondary/10"
+                  aria-label="Previous certificate"
+                >
+                  <span className="text-3xl leading-none" aria-hidden="true">&lsaquo;</span>
+                </button>
+
+                <div className="flex min-h-[260px] flex-1 items-center justify-center overflow-hidden rounded-xl bg-background/70 md:min-h-[460px]">
+                  <img
+                    src={companyCertificates[activeCompanyCertificateIndex].src}
+                    alt={companyCertificates[activeCompanyCertificateIndex].alt}
+                    className="max-h-[65vh] w-full object-contain"
+                  />
+                </div>
+
+                <button
+                  type="button"
+                  onClick={showNextCompanyCertificate}
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-secondary/30 bg-white text-primary shadow-sm transition-colors hover:bg-secondary/10"
+                  aria-label="Next certificate"
+                >
+                  <span className="text-3xl leading-none" aria-hidden="true">&rsaquo;</span>
+                </button>
+              </div>
+
+              <div className="mt-4 flex items-center justify-center gap-5">
+                <p className="font-sans text-xs font-bold uppercase tracking-widest text-secondary">
+                  {activeCompanyCertificateIndex + 1} / {companyCertificates.length}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setShowCompanyCertificates(false)}
                   className="inline-flex h-10 items-center gap-2 rounded-full bg-primary px-5 font-sans text-xs font-extrabold uppercase tracking-widest text-white shadow-md transition-colors hover:bg-primary/90"
                 >
                   <X className="h-4 w-4" />

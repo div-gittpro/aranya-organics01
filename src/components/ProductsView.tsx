@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Heart, Search, ChevronDown, ChevronRight, ShoppingCart, ArrowUpDown, SlidersHorizontal, Check, RefreshCw, Sparkles } from 'lucide-react';
 import { Product, CategoryItem } from '../types';
 import { PRODUCTS, CATEGORIES } from '../data';
+import { getWhatsAppUrl } from '../companyInfo';
 
 interface ProductsViewProps {
   onAddToCart: (product: Product, quantity?: number) => void;
@@ -85,7 +86,7 @@ export default function ProductsView({
 
   const openWhatsAppOrder = () => {
     const text = "Hello Aranya Organic, I would like to place a custom order of your organic skincare products. Please assist me!";
-    window.open(`https://api.whatsapp.com/send?phone=919876543210&text=${encodeURIComponent(text)}`, '_blank');
+    window.open(getWhatsAppUrl(text), '_blank');
   };
 
   return (

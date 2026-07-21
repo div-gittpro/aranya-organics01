@@ -1,5 +1,6 @@
-import { Sprout, Mail, Phone, MapPin } from 'lucide-react';
+import { Instagram, Sprout, Mail, Phone, MapPin } from 'lucide-react';
 import Logo from './Logo';
+import { COMPANY_INFO } from '../companyInfo';
 
 interface FooterProps {
   setCurrentTab: (tab: string) => void;
@@ -29,7 +30,7 @@ export default function Footer({ setCurrentTab, onReplayIntro }: FooterProps) {
           </p>
           <div className="flex items-center gap-2 text-xs text-secondary font-bold bg-white/5 px-4 py-2 rounded-full w-fit border border-secondary/20">
             <Sprout className="h-4 w-4 text-secondary" />
-            <span>100% Certified Organic & Vegan</span>
+            <span>MSME Certified</span>
           </div>
         </div>
 
@@ -95,15 +96,26 @@ export default function Footer({ setCurrentTab, onReplayIntro }: FooterProps) {
           <ul className="space-y-3 text-xs text-on-primary-container font-medium">
             <li className="flex items-start gap-3">
               <MapPin className="h-4 w-4 text-secondary shrink-0 mt-0.5" />
-              <span>Aranya Organic Farms, Western Ghats Foothills, Kerala, India</span>
+              <span>{COMPANY_INFO.address}</span>
             </li>
             <li className="flex items-center gap-3">
               <Phone className="h-4 w-4 text-secondary shrink-0" />
-              <span>+91 9876543210</span>
+              <span>{COMPANY_INFO.phoneDisplay}</span>
             </li>
             <li className="flex items-center gap-3">
               <Mail className="h-4 w-4 text-secondary shrink-0" />
-              <span>purity@aranyaorganic.com</span>
+              <span>{COMPANY_INFO.email}</span>
+            </li>
+            <li className="flex items-center gap-3">
+              <Instagram className="h-4 w-4 text-secondary shrink-0" />
+              <a
+                href={COMPANY_INFO.instagram}
+                target="_blank"
+                rel="noreferrer"
+                className="hover:text-secondary transition-colors"
+              >
+                Instagram
+              </a>
             </li>
           </ul>
         </div>

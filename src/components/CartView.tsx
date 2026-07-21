@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ShoppingBag, Trash2, Plus, Minus, MessageSquare, Check } from 'lucide-react';
 import { CartItem } from '../types';
+import { getWhatsAppUrl } from '../companyInfo';
 
 interface CartViewProps {
   cart: CartItem[];
@@ -19,26 +20,22 @@ export default function CartView({
   clearCart,
 }: CartViewProps) {
   const [orderPlaced, setOrderPlaced] = useState(false);
-
   // Generate WhatsApp order message
   const generateOrderMessage = () => {
-    let msg = `🌿 *ARANYA ORGANIC - NEW BOTANICAL ORDER* 🌿\n`;
-    msg += `---------------------------------\n`;
-    msg += `📦 *Order Details:*\n`;
-    cart.forEach((item, idx) => {
+    let msg = `I would like to place an order:\n\n`;
+    cart.forEach((item) => {
       const variantStr = item.selectedVariant ? ` (${item.selectedVariant})` : '';
-      msg += `${idx + 1}. ${item.product.name}${variantStr} (Qty: ${item.quantity})\n`;
+      msg += `- ${item.product.name}${variantStr} - Qty: ${item.quantity}\n`;
     });
-    msg += `---------------------------------\n`;
-    msg += `Thank you for choosing pure botanical wellness! 🌱`;
+    msg += `\nKindly share the payment and delivery details.\n\n`;
+    msg += `Thank you.`;
     return msg;
   };
 
   const handleCheckoutSubmit = () => {
     const textMsg = generateOrderMessage();
-    const encoded = encodeURIComponent(textMsg);
     // Open in new tab redirecting to merchant WhatsApp number
-    window.open(`https://api.whatsapp.com/send?phone=919876543210&text=${encoded}`, '_blank');
+    window.open(getWhatsAppUrl(textMsg), '_blank');
     
     setOrderPlaced(true);
     setTimeout(() => {

@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Sprout, Sparkles, CheckCircle, RefreshCw, MessageSquare, Star, ShoppingBag, Heart } from 'lucide-react';
 import { Product } from '../types';
 import { PRODUCTS } from '../data';
+import { getWhatsAppUrl } from '../companyInfo';
 
 interface ConsultationViewProps {
   onAddToCart: (product: Product, quantity?: number, selectedVariant?: string) => void;
@@ -110,8 +111,7 @@ export default function ConsultationView({
     }
 
     message += `\nPlease guide me with the recommended organic routines! 🌱`;
-    const encoded = encodeURIComponent(message);
-    window.open(`https://api.whatsapp.com/send?phone=919876543210&text=${encoded}`, '_blank');
+    window.open(getWhatsAppUrl(message), '_blank');
   };
 
   // Validations

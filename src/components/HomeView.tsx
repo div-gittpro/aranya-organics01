@@ -1,12 +1,12 @@
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { Sprout, MessageSquare, ShieldCheck, Heart, ShoppingBag, CheckCircle, Sparkles, Star, ChevronLeft, ChevronRight, RefreshCw, UserCheck } from 'lucide-react';
+import { motion } from 'motion/react';
+import { Sprout, MessageSquare, ShieldCheck, Heart, ShoppingBag, CheckCircle, Sparkles, Star, ChevronLeft, ChevronRight, UserCheck } from 'lucide-react';
 import { Product, Review } from '../types';
 import { PRODUCTS, REVIEWS } from '../data';
+import { getWhatsAppUrl } from '../companyInfo';
 const homeImages = import.meta.glob('../assests/*.{png,jpg,jpeg}', { eager: true, import: 'default' }) as Record<string, string>;
 const heroProduct = homeImages['../assests/hero_product.jpeg'];
 const aboutIngredients = homeImages['../assests/about_ingredients.jpeg'];
-const consultationImage = homeImages['../assests/forest_path.jpeg'];
+const consultationImage = homeImages['../assests/consultation_skincare_tablet.jpg'];
 
 const getReviewInitials = (author: string) =>
   author
@@ -47,12 +47,6 @@ export default function HomeView({
   favorites,
   onToggleFavorite,
 }: HomeViewProps) {
-  // Consultation State
-  const [skinType, setSkinType] = useState<'Dry' | 'Oily' | 'Sensitive' | 'Combination' | ''>('');
-  const [skinConcern, setSkinConcern] = useState<'Acne' | 'Dullness' | 'Aging' | 'Hair Fall' | ''>('');
-  const [consultationSubmitted, setConsultationSubmitted] = useState(false);
-  const [recommendedProduct, setRecommendedProduct] = useState<Product | null>(null);
-
   // Filter the user-requested featured products for the home page
   const featuredProductKeywords = [
     'avocado cream with spf',
@@ -69,40 +63,6 @@ export default function HomeView({
   const featuredProducts = PRODUCTS.filter(p => 
     featuredProductKeywords.includes(p.name.toLowerCase())
   );
-
-  const handleConsultationSubmit = () => {
-    if (!skinType || !skinConcern) return;
-    
-    // Find a recommendation based on skinConcern
-    let rec: Product | null = null;
-    if (skinConcern === 'Acne') {
-      rec = PRODUCTS.find(p => p.id === 'aloe-neem-tulsi') || PRODUCTS[0];
-    } else if (skinConcern === 'Dullness') {
-      rec = PRODUCTS.find(p => p.id === 'vitamin-c') || PRODUCTS[1];
-    } else if (skinConcern === 'Aging') {
-      rec = PRODUCTS.find(p => p.id === 'gold-hyaluronic') || PRODUCTS[4];
-    } else if (skinConcern === 'Hair Fall') {
-      rec = PRODUCTS.find(p => p.id === 'hair-growth-oil') || PRODUCTS[3];
-    } else {
-      rec = PRODUCTS[0];
-    }
-
-    setRecommendedProduct(rec);
-    setConsultationSubmitted(true);
-  };
-
-  const handleConsultationReset = () => {
-    setSkinType('');
-    setSkinConcern('');
-    setConsultationSubmitted(false);
-    setRecommendedProduct(null);
-  };
-
-  const openWhatsAppExpert = () => {
-    const message = `Hello Aranya Organic, I would like a personalized skincare consultation! My details: Skin Type: ${skinType || 'Not specified'}, Concern: ${skinConcern || 'Not specified'}. Please guide me!`;
-    const encoded = encodeURIComponent(message);
-    window.open(`https://api.whatsapp.com/send?phone=919876543210&text=${encoded}`, '_blank');
-  };
 
   return (
     <div className="relative overflow-hidden">
@@ -150,7 +110,7 @@ export default function HomeView({
               <button 
                 onClick={() => {
                   const message = "Hello Aranya Organic, I would like to order some of your beautiful skincare products!";
-                  window.open(`https://api.whatsapp.com/send?phone=919876543210&text=${encodeURIComponent(message)}`, '_blank');
+                  window.open(getWhatsAppUrl(message), '_blank');
                 }}
                 className="px-8 py-4 border-2 border-secondary bg-white/40 hover:bg-secondary/10 text-secondary hover:text-secondary-fixed-dim rounded-full font-bold transition-all hover:scale-102 active:scale-95 flex items-center gap-2 cursor-pointer shadow-sm"
               >
@@ -209,7 +169,7 @@ export default function HomeView({
               },
               {
                 icon: <ShieldCheck className="h-8 w-8 text-primary" />,
-                title: '100% Organic & Vegan',
+                title: 'MSME Certified',
                 desc: 'Zero synthetic fillers or parabens',
               },
               {
@@ -479,137 +439,41 @@ export default function HomeView({
                 Not sure which botanical products are right for your skin? Let our smart expert guide you through a custom routine tailored precisely to your needs.
               </p>
 
-              <AnimatePresence mode="wait">
-                {!consultationSubmitted ? (
-                  <motion.div 
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    className="space-y-6 bg-white/5 p-6 rounded-3xl border-2 border-secondary/20 backdrop-blur-md shadow-2xl"
-                  >
-                    {/* Skin Type selector */}
-                    <div>
-                      <h4 className="text-sm font-extrabold tracking-wider uppercase text-secondary mb-3 flex items-center gap-2">
-                        <span className="w-1.5 h-1.5 rounded-full bg-secondary animate-ping" />
-                        1. Select Your Skin Type
-                      </h4>
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                        {['Dry', 'Oily', 'Sensitive', 'Combination'].map((type) => (
-                          <button
-                            key={type}
-                            onClick={() => setSkinType(type as any)}
-                            className={`px-4 py-2.5 rounded-full text-xs font-bold border-2 transition-all cursor-pointer ${
-                              skinType === type
-                                ? 'bg-secondary text-on-secondary border-secondary shadow-md scale-102 font-extrabold'
-                                : 'bg-transparent border-white/20 text-white/80 hover:bg-white/10 hover:border-white/50'
-                            }`}
-                          >
-                            {type}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Skin Concern selector */}
-                    <div>
-                      <h4 className="text-sm font-extrabold tracking-wider uppercase text-secondary mb-3 flex items-center gap-2">
-                        <span className="w-1.5 h-1.5 rounded-full bg-secondary animate-ping" />
-                        2. Select Your Primary Concern
-                      </h4>
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                        {['Acne', 'Dullness', 'Aging', 'Hair Fall'].map((concern) => (
-                          <button
-                            key={concern}
-                            onClick={() => setSkinConcern(concern as any)}
-                            className={`px-4 py-2.5 rounded-full text-xs font-bold border-2 transition-all cursor-pointer ${
-                              skinConcern === concern
-                                ? 'bg-secondary text-on-secondary border-secondary shadow-md scale-102 font-extrabold'
-                                : 'bg-transparent border-white/20 text-white/80 hover:bg-white/10 hover:border-white/50'
-                            }`}
-                          >
-                            {concern}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    <button
-                      onClick={handleConsultationSubmit}
-                      disabled={!skinType || !skinConcern}
-                      className={`w-full py-4 rounded-full font-bold transition-all flex items-center justify-center gap-2 ${
-                        skinType && skinConcern
-                          ? 'bg-secondary text-on-secondary hover:bg-white hover:text-primary hover:border-secondary border-2 border-transparent shadow-lg cursor-pointer font-extrabold uppercase tracking-wider text-xs'
-                          : 'bg-white/10 text-white/40 cursor-not-allowed border-2 border-transparent'
-                      }`}
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-80px' }}
+                className="space-y-6 bg-white/5 p-6 rounded-3xl border-2 border-secondary/20 backdrop-blur-md shadow-2xl"
+              >
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  {['Skincare', 'Haircare', 'Both'].map((type) => (
+                    <div
+                      key={type}
+                      className="rounded-2xl border border-white/15 bg-white/5 px-4 py-4 text-center"
                     >
-                      <Sparkles className="h-4 w-4" />
-                      <span>Get Recommended Routine</span>
-                    </button>
-                  </motion.div>
-                ) : (
-                  <motion.div 
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="bg-white text-primary p-8 rounded-3xl space-y-5 shadow-2xl border-2 border-secondary"
-                  >
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <span className="text-[10px] font-bold tracking-widest text-secondary uppercase bg-secondary/10 px-3.5 py-1.5 rounded-full border border-secondary/20">
-                          Your Recommendation
-                        </span>
-                        <h4 className="font-serif text-2xl font-bold mt-3 text-primary">
-                          {recommendedProduct?.name}
-                        </h4>
-                      </div>
-                      <button 
-                        onClick={handleConsultationReset}
-                        className="p-1.5 hover:bg-secondary/10 rounded-full text-secondary hover:text-primary transition-all cursor-pointer border border-secondary/10"
-                        title="Reset questionnaire"
-                      >
-                        <RefreshCw className="h-5 w-5 animate-spin-slow" />
-                      </button>
+                      <span className="text-xs font-extrabold uppercase tracking-wider text-secondary">
+                        {type}
+                      </span>
                     </div>
+                  ))}
+                </div>
 
-                    <p className="text-on-surface-variant text-sm font-sans leading-relaxed">
-                      Based on your <span className="font-extrabold text-primary">{skinType}</span> skin and <span className="font-extrabold text-primary">{skinConcern}</span> concerns, our herbal experts recommend integrating this therapeutic organic formula:
-                    </p>
+                <p className="text-sm text-on-primary-container font-medium leading-relaxed">
+                  Choose your consultation type and share your skin, hair, or scalp details on the dedicated consultation page. We will guide you from there.
+                </p>
 
-                    {recommendedProduct && (
-                      <div className="flex gap-4 p-4 bg-secondary/5 rounded-2xl border-2 border-secondary/25 shadow-inner">
-                        <img 
-                          alt={recommendedProduct.name} 
-                          className="w-16 h-16 object-cover rounded-lg border border-secondary/30" 
-                          src={recommendedProduct.image || null} 
-                        />
-                        <div className="flex flex-col justify-center">
-                          <p className="font-bold text-sm text-primary">{recommendedProduct.name}</p>
-                          <p className="text-xs text-on-surface-variant font-sans line-clamp-1 mt-1">{recommendedProduct.description}</p>
-                        </div>
-                      </div>
-                    )}
-
-                    <div className="flex gap-3 pt-2">
-                      <button
-                        onClick={() => {
-                          if (recommendedProduct) {
-                            onAddToCart(recommendedProduct, 1);
-                          }
-                        }}
-                        className="flex-1 py-3 bg-primary text-white rounded-full font-bold hover:bg-secondary hover:text-on-secondary text-xs uppercase tracking-widest transition-all shadow-md cursor-pointer border border-transparent hover:border-white/20"
-                      >
-                        Add Routine to Cart
-                      </button>
-                      <button
-                        onClick={openWhatsAppExpert}
-                        className="py-3 px-6 border-2 border-secondary text-secondary hover:bg-secondary hover:text-white rounded-full font-bold text-xs uppercase tracking-widest transition-all cursor-pointer"
-                      >
-                        Ask Expert
-                      </button>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCurrentTab('consultation');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  className="w-full py-4 bg-secondary text-on-secondary hover:bg-white hover:text-primary rounded-full font-extrabold uppercase tracking-wider text-xs transition-all shadow-lg cursor-pointer flex items-center justify-center gap-2"
+                >
+                  <Sparkles className="h-4 w-4" />
+                  Open Consultation Form
+                </button>
+              </motion.div>
 
               <div className="space-y-4 pt-4">
                 <div className="flex items-start gap-4">
