@@ -1,0 +1,6 @@
+{
+  "name": "Aranya Organic",
+  "description": "Premium botanical and artisanal Ayurvedic skincare brand experience with custom product categories, search, interactive cart, and a smart WhatsApp concierge.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
