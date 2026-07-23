@@ -95,22 +95,22 @@ export default function ConsultationView({
   };
 
   const openWhatsAppExpert = () => {
-    let message = `Hello Aranya Organic, I would like a personalized consultation summary! 🌿\n\n`;
-    message += `📋 *Consultation Type:* ${consultationType.toUpperCase()}\n`;
+    let message = `Hello Aranya Organic, I would like a personalized consultation summary!\n\n`;
+    message += `Consultation Type: ${consultationType.toUpperCase()}\n\n`;
     
     if (consultationType === 'skincare' || consultationType === 'both') {
       const actualSkinType = skinType === 'Other' ? `Other (${skinTypeOther})` : skinType;
       const actualConcern = skinConcern === 'Other' ? `Other (${skinConcernOther})` : skinConcern;
-      message += `✨ *Skincare details:*\n- Skin Type: ${actualSkinType || 'Not specified'}\n- Concern: ${actualConcern || 'Not specified'}\n`;
+      message += `Skincare details:\n- Skin Type: ${actualSkinType || 'Not specified'}\n- Concern: ${actualConcern || 'Not specified'}\n\n`;
     }
     
     if (consultationType === 'haircare' || consultationType === 'both') {
       const actualHairType = hairType === 'Other' ? `Other (${hairTypeOther})` : hairType;
       const actualConcern = hairConcern === 'Other' ? `Other (${hairConcernOther})` : hairConcern;
-      message += `💇 *Haircare details:*\n- Hair/Scalp Type: ${actualHairType || 'Not specified'}\n- Concern: ${actualConcern || 'Not specified'}\n`;
+      message += `Haircare details:\n- Hair/Scalp Type: ${actualHairType || 'Not specified'}\n- Concern: ${actualConcern || 'Not specified'}\n\n`;
     }
 
-    message += `\nPlease guide me with the recommended organic routines! 🌱`;
+    message += `Please guide me with the recommended organic routines!`;
     window.open(getWhatsAppUrl(message), '_blank');
   };
 
@@ -147,7 +147,7 @@ export default function ConsultationView({
         <div className="text-center space-y-4">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/5 text-primary border border-secondary/40 shadow-sm">
             <Sprout className="h-4 w-4 text-secondary" />
-            <span className="font-sans text-xs font-bold uppercase tracking-widest text-primary">Ayurvedic Skin Intelligence</span>
+            <span className="font-sans text-xs font-bold uppercase tracking-widest text-primary">Organic Skin Intelligence</span>
           </div>
           <h1 className="font-serif text-4xl md:text-5xl text-primary font-bold tracking-tight">
             Personalized Consultation
@@ -495,10 +495,7 @@ export default function ConsultationView({
                               </p>
                             </div>
                             
-                            <div className="flex justify-between items-center mt-3 pt-2 border-t border-secondary/10">
-                              <span className="font-serif font-bold text-sm text-primary">
-                                ₹{prod.price}
-                              </span>
+                            <div className="flex justify-end items-center mt-3 pt-2 border-t border-secondary/10">
                               <button 
                                 onClick={(e) => {
                                   e.stopPropagation();

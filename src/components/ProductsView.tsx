@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Heart, Search, ChevronDown, ChevronRight, ShoppingCart, ArrowUpDown, SlidersHorizontal, Check, RefreshCw, Sparkles } from 'lucide-react';
+import { Heart, ChevronDown, ShoppingCart, SlidersHorizontal, Sparkles } from 'lucide-react';
 import { Product, CategoryItem } from '../types';
 import { PRODUCTS, CATEGORIES } from '../data';
 import { getWhatsAppUrl } from '../companyInfo';
@@ -24,10 +24,16 @@ export default function ProductsView({
   setSearchQuery,
   setIsCartOpen,
 }: ProductsViewProps) {
+  const INITIAL_PRODUCT_COUNT = 9;
+  const PRODUCT_BATCH_SIZE = 9;
+
   // Navigation & filter states
   const [activeCategory, setActiveCategory] = useState<string>('All');
   const [activeSubCategory, setActiveSubCategory] = useState<string>('');
   const [expandedAccordion, setExpandedAccordion] = useState<string>('');
+  const productsSectionRef = useRef<HTMLElement>(null);
+  const loadMoreRef = useRef<HTMLDivElement>(null);
+  const [visibleProductCount, setVisibleProductCount] = useState(INITIAL_PRODUCT_COUNT);
   
   // Sorting state
   const [sortBy, setSortBy] = useState<'Recommended' | 'PriceAsc' | 'PriceDesc' | 'Rating'>('Recommended');
@@ -36,6 +42,7 @@ export default function ProductsView({
     setExpandedAccordion(expandedAccordion === categoryId ? '' : categoryId);
     setActiveCategory(categoryId);
     setActiveSubCategory(''); // Default to showing all products of this category
+    scrollToProductsOnMobile();
   };
 
   // Filter products based on search, main category, and subcategory
@@ -80,6 +87,32 @@ export default function ProductsView({
     return b.rating + (b.tag ? 1 : 0) - (a.rating + (a.tag ? 1 : 0));
   });
 
+  const visibleProducts = sortedProducts.slice(0, visibleProductCount);
+  const hasMoreProducts = visibleProductCount < sortedProducts.length;
+
+  useEffect(() => {
+    setVisibleProductCount(INITIAL_PRODUCT_COUNT);
+  }, [activeCategory, activeSubCategory, sortBy, searchQuery]);
+
+  useEffect(() => {
+    if (!hasMoreProducts || !loadMoreRef.current) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+
+        setVisibleProductCount((currentCount) =>
+          Math.min(currentCount + PRODUCT_BATCH_SIZE, sortedProducts.length)
+        );
+      },
+      { rootMargin: '700px 0px' }
+    );
+
+    observer.observe(loadMoreRef.current);
+
+    return () => observer.disconnect();
+  }, [hasMoreProducts, sortedProducts.length]);
+
   const handleQuickAdd = (product: Product) => {
     onAddToCart(product, 1);
   };
@@ -87,6 +120,17 @@ export default function ProductsView({
   const openWhatsAppOrder = () => {
     const text = "Hello Aranya Organic, I would like to place a custom order of your organic skincare products. Please assist me!";
     window.open(getWhatsAppUrl(text), '_blank');
+  };
+
+  const scrollToProductsOnMobile = () => {
+    if (!window.matchMedia('(max-width: 767px)').matches) return;
+
+    window.setTimeout(() => {
+      productsSectionRef.current?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+    }, 50);
   };
 
   return (
@@ -110,6 +154,7 @@ export default function ProductsView({
                 setActiveCategory('All');
                 setActiveSubCategory('');
                 setExpandedAccordion('');
+                scrollToProductsOnMobile();
               }}
               className={`w-full flex items-center justify-between p-3 rounded-xl transition-all duration-300 cursor-pointer ${
                 activeCategory === 'All'
@@ -158,7 +203,10 @@ export default function ProductsView({
                       >
                         {/* Option to see all inside this category */}
                         <button
-                          onClick={() => setActiveSubCategory('')}
+                          onClick={() => {
+                            setActiveSubCategory('');
+                            scrollToProductsOnMobile();
+                          }}
                           className={`text-left py-1.5 px-3 rounded-md transition-all duration-200 cursor-pointer ${
                             activeSubCategory === ''
                               ? 'text-secondary font-bold bg-secondary/10 border-r-2 border-secondary'
@@ -171,7 +219,10 @@ export default function ProductsView({
                         {cat.subCategories.map((sub) => (
                           <button
                             key={sub}
-                            onClick={() => setActiveSubCategory(sub)}
+                            onClick={() => {
+                              setActiveSubCategory(sub);
+                              scrollToProductsOnMobile();
+                            }}
                             className={`text-left py-1.5 px-3 rounded-md transition-all duration-200 cursor-pointer ${
                               activeSubCategory === sub
                                 ? 'text-secondary font-bold bg-secondary/10 border-r-2 border-secondary'
@@ -213,7 +264,7 @@ export default function ProductsView({
       </aside>
 
       {/* 2. Main Product Grid Area */}
-      <section className="flex-grow">
+      <section ref={productsSectionRef} className="flex-grow scroll-mt-24">
         
         {/* Banner Section */}
         <div className="mb-10 text-center md:text-left">
@@ -234,6 +285,7 @@ export default function ProductsView({
                     setActiveCategory(mappedCat);
                     setExpandedAccordion(mappedCat === 'All' ? '' : mappedCat);
                     setActiveSubCategory('');
+                    scrollToProductsOnMobile();
                   }}
                   className={`px-6 py-2 rounded-full text-sm font-bold shadow-sm transition-all cursor-pointer ${
                     isSelected
@@ -308,8 +360,9 @@ export default function ProductsView({
               transition={{ duration: 0.25, ease: "easeOut" }}
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6"
             >
-              {sortedProducts.map((product) => {
+              {visibleProducts.map((product, index) => {
                 const isFav = favorites.includes(product.id);
+                const shouldPrioritizeImage = index < 6;
 
                 return (
                   <div
@@ -323,6 +376,9 @@ export default function ProductsView({
                         alt={product.name}
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
                         src={product.image || null}
+                        loading={shouldPrioritizeImage ? 'eager' : 'lazy'}
+                        fetchPriority={shouldPrioritizeImage ? 'high' : 'low'}
+                        decoding="async"
                       />
                       
                       {/* Heart Wishlist Toggle */}
@@ -380,16 +436,13 @@ export default function ProductsView({
           )}
         </AnimatePresence>
 
-        {/* View More pagination button */}
-        <div className="mt-16 flex justify-center">
-          <button 
-            onClick={() => alert("All premium handcrafted formulas have been listed above.")}
-            className="px-12 py-4 border-2 border-primary text-primary hover:bg-primary hover:text-white rounded-full font-bold transition-all flex items-center gap-3 cursor-pointer text-sm"
-          >
-            <span>View More Products</span>
-            <ChevronDown className="h-4 w-4" />
-          </button>
-        </div>
+        {hasMoreProducts && (
+          <div
+            ref={loadMoreRef}
+            className="h-16"
+            aria-hidden="true"
+          />
+        )}
 
       </section>
 

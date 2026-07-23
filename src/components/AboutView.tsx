@@ -141,6 +141,20 @@ export default function AboutView() {
           </div>
         </section>
 
+        <div className="flex justify-center -mt-8">
+          <button
+            type="button"
+            onClick={() => {
+              setActiveCompanyCertificateIndex(0);
+              setShowCompanyCertificates(true);
+            }}
+            className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 font-sans text-xs font-extrabold uppercase tracking-widest text-white shadow-lg transition-all duration-300 hover:bg-primary/90 hover:shadow-xl"
+          >
+            <Eye className="h-4 w-4" />
+            View Company Certificates
+          </button>
+        </div>
+
         {/* Co-Founders Profiles & Verified Certificates */}
         <section className="space-y-16">
           <div className="text-center space-y-2">
@@ -167,7 +181,7 @@ export default function AboutView() {
                 <div className="flex-grow space-y-4">
                   <div className="text-center md:text-left space-y-1">
                     <h3 className="font-serif text-2xl font-bold text-primary">Bhumika Gaglani</h3>
-                    <p className="text-sm text-secondary font-bold">Co-Founder & Skincare Expert</p>
+                    <p className="text-sm text-secondary font-bold">Co Founder</p>
                   </div>
 
                   <div className="bg-primary/5 p-4 rounded-2xl border-l-4 border-secondary">
@@ -220,7 +234,7 @@ export default function AboutView() {
                 <div className="flex-grow space-y-4">
                   <div className="text-center md:text-left space-y-1">
                     <h3 className="font-serif text-2xl font-bold text-primary">Nidhi Jani</h3>
-                    <p className="text-sm text-secondary font-bold">Co-Founder & Formulation Chemist</p>
+                    <p className="text-sm text-secondary font-bold">Co Founder</p>
                   </div>
 
                   <div className="bg-primary/5 p-4 rounded-2xl border-l-4 border-secondary">
@@ -255,19 +269,6 @@ export default function AboutView() {
                 </button>
               </div>
 
-              <div className="flex justify-center md:justify-start">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setActiveCompanyCertificateIndex(0);
-                    setShowCompanyCertificates(true);
-                  }}
-                  className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 font-sans text-xs font-extrabold uppercase tracking-widest text-white shadow-lg transition-all duration-300 hover:bg-primary/90 hover:shadow-xl"
-                >
-                  <Eye className="h-4 w-4" />
-                  View Company Certificates
-                </button>
-              </div>
             </div>
 
           </div>

@@ -171,9 +171,6 @@ export default function IntroStory({ onComplete }: IntroStoryProps) {
               className="absolute w-full flex flex-col items-center justify-center space-y-6"
               style={{ opacity: textOpacity2, y: textY2, pointerEvents: activeStage === 2 ? 'auto' : 'none' }}
             >
-              <span className="text-[10px] tracking-[0.3em] uppercase font-mono text-amber-300 bg-black/30 px-3.5 py-1.5 rounded-full border border-amber-300/15 backdrop-blur-sm">
-                Stage 02 • Wisdom of the Forest
-              </span>
               <h2 className="font-serif text-3xl md:text-5xl font-light leading-snug text-white max-w-2xl">
                 Inspired by the ancient, sun-dappled path.
               </h2>
@@ -184,9 +181,6 @@ export default function IntroStory({ onComplete }: IntroStoryProps) {
               className="absolute w-full flex flex-col items-center justify-center space-y-6"
               style={{ opacity: textOpacity3, y: textY3, pointerEvents: activeStage === 3 ? 'auto' : 'none' }}
             >
-              <span className="text-[10px] tracking-[0.3em] uppercase font-mono text-amber-300 bg-black/30 px-3.5 py-1.5 rounded-full border border-amber-300/15 backdrop-blur-sm">
-                Stage 03 • Tranquil Lake
-              </span>
               <h2 className="font-serif text-3xl md:text-5xl font-light leading-snug text-white max-w-2xl tracking-wide">
                 Gaze upon the stillness of pristine lakes.
               </h2>

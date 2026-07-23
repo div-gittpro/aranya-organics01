@@ -57,7 +57,8 @@ export default function HomeView({
     'rosemary hair oil',
     'rosemary hibiscus oil',
     'rosemary hibiscus hair oil',
-    'korean whitening cream'
+    'korean whitening cream',
+    'pearl pigment cream'
   ];
 
   const featuredProducts = PRODUCTS.filter(p => 
@@ -429,7 +430,7 @@ export default function HomeView({
             <div className="space-y-6">
               <div className="space-y-2">
                 <span className="text-[10px] text-secondary font-extrabold uppercase tracking-widest bg-secondary/20 px-3.5 py-1.5 rounded-full border border-secondary/30">
-                  Ayurvedic Skin Intelligence
+                  Organic Skin Intelligence
                 </span>
                 <h2 className="font-serif text-4xl text-white font-bold tracking-tight mt-2">
                   Personalized Skincare Consultation
@@ -445,23 +446,6 @@ export default function HomeView({
                 viewport={{ once: true, margin: '-80px' }}
                 className="space-y-6 bg-white/5 p-6 rounded-3xl border-2 border-secondary/20 backdrop-blur-md shadow-2xl"
               >
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  {['Skincare', 'Haircare', 'Both'].map((type) => (
-                    <div
-                      key={type}
-                      className="rounded-2xl border border-white/15 bg-white/5 px-4 py-4 text-center"
-                    >
-                      <span className="text-xs font-extrabold uppercase tracking-wider text-secondary">
-                        {type}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-
-                <p className="text-sm text-on-primary-container font-medium leading-relaxed">
-                  Choose your consultation type and share your skin, hair, or scalp details on the dedicated consultation page. We will guide you from there.
-                </p>
-
                 <button
                   type="button"
                   onClick={() => {
