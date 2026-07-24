@@ -23,10 +23,13 @@ export default function ProductDetailView({
   const [added, setAdded] = useState(false);
   const isFav = favorites.includes(product.id);
 
+  const [activeImage, setActiveImage] = useState(0);
+
   useEffect(() => {
     setSelectedVariant(product.variants?.[0] || '');
     setQuantity(1);
     setAdded(false);
+    setActiveImage(0);
   }, [product]);
 
   const addToCart = () => {
@@ -42,6 +45,8 @@ export default function ProductDetailView({
       : product.subCategory === 'Lip Balm'
         ? 'Select Flavour'
         : 'Select Variant';
+
+  const displayImages = product.images?.length ? product.images : [product.image];
 
   return (
     <div className="bg-background min-h-screen px-6 md:px-16 py-10">
@@ -60,14 +65,31 @@ export default function ProductDetailView({
           transition={{ duration: 0.35 }}
           className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start"
         >
-          <div className="bg-white border-2 border-luxury-gold rounded-2xl overflow-hidden shadow-md">
-            <div className="aspect-square bg-surface-container-low">
-              <img
-                alt={product.name}
-                className="w-full h-full object-cover"
-                src={product.image || null}
-              />
+          <div className="flex flex-col gap-4">
+            <div className="bg-white border-2 border-luxury-gold rounded-2xl overflow-hidden shadow-md">
+              <div className="aspect-square bg-surface-container-low">
+                <img
+                  alt={product.name}
+                  className="w-full h-full object-cover"
+                  src={displayImages[activeImage] || null}
+                />
+              </div>
             </div>
+            {displayImages.length > 1 && (
+              <div className="flex gap-4">
+                {displayImages.map((img, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setActiveImage(idx)}
+                    className={`w-20 h-20 rounded-xl overflow-hidden border-2 cursor-pointer transition-all ${
+                      activeImage === idx ? 'border-secondary shadow-md' : 'border-transparent opacity-70 hover:opacity-100'
+                    }`}
+                  >
+                    <img src={img} alt={`${product.name} ${idx + 1}`} className="w-full h-full object-cover" />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           <section className="space-y-7">

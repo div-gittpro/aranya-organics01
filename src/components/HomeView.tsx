@@ -65,6 +65,66 @@ export default function HomeView({
     featuredProductKeywords.includes(p.name.toLowerCase())
   );
 
+  const renderFeaturedProductCard = (product: Product, uniqueKey: string, isMobile: boolean) => {
+    const isFav = favorites.includes(product.id);
+    return (
+      <div 
+        key={uniqueKey}
+        className={`${isMobile ? 'w-[280px] shrink-0' : 'w-full'} group bg-white rounded-2xl overflow-hidden border-2 border-luxury-gold shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col cursor-pointer`}
+        onClick={() => onOpenProductDetail(product)}
+      >
+        <div className="aspect-[4/5] bg-surface-container relative overflow-hidden">
+          <img 
+            alt={product.name}
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
+            src={product.image || null}
+          />
+          
+          {/* Favorite Heart Trigger */}
+          <button 
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleFavorite(product.id);
+            }}
+            className="absolute top-4 right-4 w-10 h-10 bg-white/80 backdrop-blur rounded-full flex items-center justify-center text-primary transition-all hover:bg-white hover:text-red-500 active:scale-90 shadow-sm cursor-pointer z-10"
+            aria-label="Add to Wishlist"
+          >
+            <Heart className={`h-5 w-5 ${isFav ? 'fill-red-500 text-red-500' : ''}`} />
+          </button>
+
+          {/* Tag badge */}
+          {product.tag && (
+            <div className="absolute bottom-4 left-4 bg-secondary text-white text-[10px] uppercase font-extrabold tracking-widest px-3.5 py-1 rounded-full shadow-md border border-white/20">
+              {product.tag}
+            </div>
+          )}
+        </div>
+
+        <div className="p-6 flex flex-col flex-grow border-t border-secondary/15">
+          <h3 className="font-serif font-bold text-lg text-primary truncate group-hover:text-secondary transition-colors">
+            {product.name}
+          </h3>
+          <p className="text-xs text-on-surface-variant mt-1.5 line-clamp-1 font-medium">{product.description}</p>
+          
+          <div className="flex justify-between items-center mt-6 pt-2 border-t border-secondary/15">
+            <span className="font-serif font-bold text-[10px] uppercase tracking-wider text-secondary bg-secondary/10 px-3 py-1 rounded-full">Organic</span>
+            <button 
+              onClick={(e) => {
+                e.stopPropagation();
+                onAddToCart(product, 1);
+              }}
+              className="px-4 py-2 bg-primary hover:bg-secondary text-white hover:text-white rounded-full flex items-center justify-center gap-1.5 text-xs font-bold transition-all duration-300 shadow-md cursor-pointer"
+              aria-label="Add to Cart"
+            >
+              <ShoppingBag className="h-3.5 w-3.5 text-secondary" />
+              <span>Add to Cart</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="relative overflow-hidden">
       
@@ -225,7 +285,7 @@ export default function HomeView({
             <div className="absolute left-0 top-0 bottom-0 w-16 sm:w-32 bg-gradient-to-r from-surface-container-low via-surface-container-low/80 to-transparent z-10 pointer-events-none" />
             <div className="absolute right-0 top-0 bottom-0 w-16 sm:w-32 bg-gradient-to-l from-surface-container-low via-surface-container-low/80 to-transparent z-10 pointer-events-none" />
             
-            <div className="flex w-max gap-6 animate-marquee hover:pause-marquee">
+            <div className="flex w-max gap-6 animate-marquee hover:pause-marquee active:pause-marquee focus:pause-marquee focus-within:pause-marquee touch-pan-y">
               {[...REVIEWS, ...REVIEWS, ...REVIEWS, ...REVIEWS].map((review, idx) => (
                 <div
                   key={`${review.id}-${idx}`}
@@ -353,66 +413,23 @@ export default function HomeView({
             </button>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {featuredProducts.map((product) => {
-              const isFav = favorites.includes(product.id);
-              return (
-                <div 
-                  key={product.id}
-                  className="group bg-white rounded-2xl overflow-hidden border-2 border-luxury-gold shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col cursor-pointer"
-                  onClick={() => onOpenProductDetail(product)}
-                >
-                  <div className="aspect-[4/5] bg-surface-container relative overflow-hidden">
-                    <img 
-                      alt={product.name}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
-                      src={product.image || null}
-                    />
-                    
-                    {/* Favorite Heart Trigger */}
-                    <button 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onToggleFavorite(product.id);
-                      }}
-                      className="absolute top-4 right-4 w-10 h-10 bg-white/80 backdrop-blur rounded-full flex items-center justify-center text-primary transition-all hover:bg-white hover:text-red-500 active:scale-90 shadow-sm cursor-pointer z-10"
-                      aria-label="Add to Wishlist"
-                    >
-                      <Heart className={`h-5 w-5 ${isFav ? 'fill-red-500 text-red-500' : ''}`} />
-                    </button>
+          {/* Mobile Featured Products Marquee */}
+          <div className="sm:hidden w-full overflow-hidden py-4 relative">
+            <div className="absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-background via-background/80 to-transparent z-10 pointer-events-none" />
+            <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-background via-background/80 to-transparent z-10 pointer-events-none" />
+            
+            <div className="flex w-max gap-4 animate-marquee hover:pause-marquee active:pause-marquee focus:pause-marquee focus-within:pause-marquee touch-pan-y">
+              {[...featuredProducts, ...featuredProducts].map((product, idx) => 
+                renderFeaturedProductCard(product, `mobile-${product.id}-${idx}`, true)
+              )}
+            </div>
+          </div>
 
-                    {/* Tag badge */}
-                    {product.tag && (
-                      <div className="absolute bottom-4 left-4 bg-secondary text-white text-[10px] uppercase font-extrabold tracking-widest px-3.5 py-1 rounded-full shadow-md border border-white/20">
-                        {product.tag}
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="p-6 flex flex-col flex-grow border-t border-secondary/15">
-                    <h3 className="font-serif font-bold text-lg text-primary truncate group-hover:text-secondary transition-colors">
-                      {product.name}
-                    </h3>
-                    <p className="text-xs text-on-surface-variant mt-1.5 line-clamp-1 font-medium">{product.description}</p>
-                    
-                    <div className="flex justify-between items-center mt-6 pt-2 border-t border-secondary/15">
-                      <span className="font-serif font-bold text-[10px] uppercase tracking-wider text-secondary bg-secondary/10 px-3 py-1 rounded-full">Organic</span>
-                      <button 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onAddToCart(product, 1);
-                        }}
-                        className="px-4 py-2 bg-primary hover:bg-secondary text-white hover:text-white rounded-full flex items-center justify-center gap-1.5 text-xs font-bold transition-all duration-300 shadow-md cursor-pointer"
-                        aria-label="Add to Cart"
-                      >
-                        <ShoppingBag className="h-3.5 w-3.5 text-secondary" />
-                        <span>Add to Cart</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+          {/* Desktop/Tablet Featured Products Grid */}
+          <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {featuredProducts.map((product) => 
+              renderFeaturedProductCard(product, `desktop-${product.id}`, false)
+            )}
           </div>
         </div>
       </section>

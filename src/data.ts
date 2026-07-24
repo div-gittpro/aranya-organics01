@@ -345,19 +345,18 @@ function getWords(str: string): string[] {
   return str.toLowerCase().replace(/[^a-z0-9 ]/g, ' ').replace(/[0-9]/g, ' ').split(/\s+/).filter(Boolean);
 }
 
-function resolveProductImage(name: string, category: string, subCategory: string): string {
+function resolveProductImages(name: string, category: string, subCategory: string): string[] {
   if (MANUAL_OVERRIDES[name]) {
     const overridePath = MANUAL_OVERRIDES[name];
     if (globbedImages[overridePath]) {
-      return globbedImages[overridePath];
+      return [globbedImages[overridePath]];
     }
   }
 
   const normName = normalize(name);
   const prodWords = getWords(name);
   
-  let bestMatchKey: string | null = null;
-  let bestScore = -1;
+  let matches: { path: string, score: number, normFile: string }[] = [];
   
   Object.keys(globbedImages).forEach(fPath => {
     const fileName = fPath.split('/').pop()?.replace(/\.[^/.]+$/, "") || "";
@@ -407,22 +406,24 @@ function resolveProductImage(name: string, category: string, subCategory: string
       score += 1500;
     }
     
-    // Preferred file suffix: prefer "1.png" over others if scores are equal
-    if (fileName.endsWith('1')) {
-      score += 10;
-    }
-    
-    if (score > bestScore) {
-      bestScore = score;
-      bestMatchKey = fPath;
+    if (score > 0) {
+      matches.push({ path: fPath, score, normFile });
     }
   });
   
-  if (bestMatchKey && bestScore > 0) {
-    return globbedImages[bestMatchKey];
+  if (matches.length === 0) {
+    return [Object.values(globbedImages)[0] || ''];
   }
   
-  return Object.values(globbedImages)[0] || '';
+  matches.sort((a, b) => b.score - a.score);
+  
+  const bestMatch = matches[0];
+  const relatedImages = matches
+    .filter(m => m.normFile === bestMatch.normFile)
+    .sort((a, b) => a.path.localeCompare(b.path))
+    .map(m => globbedImages[m.path]);
+  
+  return Array.from(new Set(relatedImages)).slice(0, 2);
 }
 
 function generateProduct(
@@ -434,7 +435,8 @@ function generateProduct(
 ): Product {
   const id = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
   
-  const image = resolveProductImage(name, category, subCategory);
+  const images = resolveProductImages(name, category, subCategory);
+  const image = images[0];
 
   let description = `Premium handcrafted ${name.toLowerCase()} enriched with pure natural extracts and active organic botanicals to nurture your body.`;
   if (name.includes('Aloe') || name.includes('Aloevera')) {
@@ -509,6 +511,7 @@ function generateProduct(
     category,
     subCategory,
     image,
+    images,
     tag,
     rating,
     inStock: true,

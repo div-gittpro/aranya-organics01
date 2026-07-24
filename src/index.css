@@ -75,7 +75,7 @@
 }
 
 @utility animate-marquee {
-  animation: marquee 110s linear infinite;
+  animation: marquee 180s linear infinite;
 }
 
 @utility pause-marquee {

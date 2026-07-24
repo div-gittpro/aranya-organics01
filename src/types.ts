@@ -6,6 +6,7 @@ export interface Product {
   category: 'Skincare' | 'Haircare' | 'Personal Care';
   subCategory?: string;
   image: string;
+  images: string[];
   tag?: 'New Arrival' | 'Bestseller' | 'Limited Edition' | 'Handcrafted';
   rating: number;
   inStock: boolean;
