@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ShoppingBag, Trash2, Plus, Minus, MessageSquare, Check } from 'lucide-react';
 import { CartItem } from '../types';
-import { getWhatsAppUrl } from '../companyInfo';
+import { MAX_RETAIL_QUANTITY, getBulkOrderWhatsAppUrl, getWhatsAppUrl } from '../companyInfo';
 
 interface CartViewProps {
   cart: CartItem[];
@@ -43,6 +43,11 @@ export default function CartView({
       setOrderPlaced(false);
       onClose();
     }, 1500);
+  };
+
+  const handleBulkOrder = () => {
+    const itemNames = cart.map((item) => item.product.name).join(', ');
+    window.open(getBulkOrderWhatsAppUrl(itemNames || undefined, MAX_RETAIL_QUANTITY + 1), '_blank');
   };
 
   return (
@@ -164,7 +169,13 @@ export default function CartView({
                           </span>
                           <button 
                             onClick={() => onUpdateQty(item.product.id, item.quantity + 1, item.selectedVariant)}
-                            className="p-1.5 hover:bg-outline-variant/20 text-primary cursor-pointer"
+                            disabled={item.quantity >= MAX_RETAIL_QUANTITY}
+                            className="p-1.5 hover:bg-outline-variant/20 text-primary cursor-pointer disabled:opacity-45 disabled:cursor-not-allowed"
+                            title={
+                              item.quantity >= MAX_RETAIL_QUANTITY
+                                ? 'Contact the manufacturer on WhatsApp for bulk orders'
+                                : 'Increase quantity'
+                            }
                           >
                             <Plus className="h-3 w-3" />
                           </button>
@@ -187,7 +198,18 @@ export default function CartView({
                 <p className="text-xs text-on-surface-variant mt-1.5 font-medium">
                   We formulate and dispatch your handmade blends immediately. Click below to share your cart list with us directly via WhatsApp to coordinate delivery and secure your order.
                 </p>
+                <p className="text-[11px] text-primary mt-2 font-bold">
+                  Max {MAX_RETAIL_QUANTITY} products per retail item.
+                </p>
               </div>
+
+              <button
+                onClick={handleBulkOrder}
+                className="w-full py-3.5 bg-secondary/10 hover:bg-secondary text-primary hover:text-white rounded-full font-bold flex items-center justify-center gap-2 transition-all duration-300 cursor-pointer uppercase text-xs tracking-widest border border-secondary/25"
+              >
+                <MessageSquare className="h-4 w-4" />
+                <span>Contact Manufacturer for Bulk Order</span>
+              </button>
 
               <button 
                 onClick={handleCheckoutSubmit}

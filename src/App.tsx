@@ -14,7 +14,10 @@ import ConsultationView from './components/ConsultationView';
 import TermsView from './components/TermsView';
 import ReturnsView from './components/ReturnsView';
 import ShippingView from './components/ShippingView';
+import PrivacyView from './components/PrivacyView';
+import ConsultationDisclaimerView from './components/ConsultationDisclaimerView';
 import ProductDetailView from './components/ProductDetailView';
+import { MAX_RETAIL_QUANTITY } from './companyInfo';
 
 export default function App() {
   // Global Navigation states
@@ -91,6 +94,7 @@ export default function App() {
   // Global Actions
   const handleAddToCart = (product: Product, quantity?: number, selectedVariant?: string) => {
     const qtyToAdd = quantity || 1;
+    let wasCapped = qtyToAdd > MAX_RETAIL_QUANTITY;
     
     setCart((prevCart) => {
       const existingIdx = prevCart.findIndex(
@@ -99,19 +103,36 @@ export default function App() {
 
       if (existingIdx > -1) {
         const updated = [...prevCart];
-        updated[existingIdx].quantity += qtyToAdd;
+        const nextQuantity = updated[existingIdx].quantity + qtyToAdd;
+        if (nextQuantity > MAX_RETAIL_QUANTITY) {
+          updated[existingIdx].quantity = MAX_RETAIL_QUANTITY;
+          wasCapped = true;
+        } else {
+          updated[existingIdx].quantity = nextQuantity;
+        }
         return updated;
       } else {
-        return [...prevCart, { product, quantity: qtyToAdd, selectedVariant }];
+        return [
+          ...prevCart,
+          { product, quantity: Math.min(qtyToAdd, MAX_RETAIL_QUANTITY), selectedVariant }
+        ];
       }
     });
 
     const nameWithVariant = selectedVariant ? `${product.name} (${selectedVariant})` : product.name;
-    triggerToast(`Added ${qtyToAdd} x ${nameWithVariant} to your botanical cart!`);
+    triggerToast(`Added ${Math.min(qtyToAdd, MAX_RETAIL_QUANTITY)} x ${nameWithVariant} to your botanical cart!`);
+    if (wasCapped) {
+      triggerToast("Retail quantity is capped at 10. Use the bulk order box for larger orders.", "info");
+    }
   };
 
   const handleUpdateCartQty = (productId: string, qty: number, selectedVariant?: string) => {
     if (qty < 1) return;
+    if (qty > MAX_RETAIL_QUANTITY) {
+      triggerToast("Retail quantity is capped at 10. Use the bulk order button for larger orders.", "info");
+      qty = MAX_RETAIL_QUANTITY;
+    }
+
     setCart((prevCart) =>
       prevCart.map((item) =>
         item.product.id === productId && item.selectedVariant === selectedVariant
@@ -298,6 +319,30 @@ export default function App() {
                   transition={{ duration: 0.4 }}
                 >
                   <ShippingView />
+                </motion.div>
+              )}
+
+              {currentTab === 'privacy' && (
+                <motion.div
+                  key="privacy"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.4 }}
+                >
+                  <PrivacyView />
+                </motion.div>
+              )}
+
+              {currentTab === 'consultation-disclaimer' && (
+                <motion.div
+                  key="consultation-disclaimer"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.4 }}
+                >
+                  <ConsultationDisclaimerView />
                 </motion.div>
               )}
             </AnimatePresence>

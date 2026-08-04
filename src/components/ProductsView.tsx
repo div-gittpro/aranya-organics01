@@ -15,6 +15,65 @@ interface ProductsViewProps {
   setIsCartOpen: () => void;
 }
 
+interface ProductImageRotatorProps {
+  product: Product;
+  shouldPrioritizeImage: boolean;
+}
+
+function ProductImageRotator({ product, shouldPrioritizeImage }: ProductImageRotatorProps) {
+  const images = product.images?.length ? product.images : [product.image];
+  const hasMultipleImages = images.length > 1;
+  const [isHovered, setIsHovered] = useState(false);
+  const activeImage = isHovered && hasMultipleImages ? 1 : 0;
+
+  const showHoverImage = () => {
+    if (!hasMultipleImages) return;
+    setIsHovered(true);
+  };
+
+  const restorePrimaryImage = () => {
+    setIsHovered(false);
+  };
+
+  return (
+    <div
+      className="absolute inset-0"
+      onMouseEnter={showHoverImage}
+      onMouseLeave={restorePrimaryImage}
+      onFocus={showHoverImage}
+      onBlur={restorePrimaryImage}
+    >
+      {images.map((image, idx) => (
+        <img
+          key={`${product.id}-${idx}`}
+          alt={idx === 0 ? product.name : `${product.name} view ${idx + 1}`}
+          className={`absolute inset-0 h-full w-full object-contain object-center transition-opacity duration-700 ${
+            activeImage === idx ? 'opacity-100' : 'opacity-0'
+          }`}
+          src={image || null}
+          loading={idx === 0 && shouldPrioritizeImage ? 'eager' : 'lazy'}
+          fetchPriority={idx === 0 && shouldPrioritizeImage ? 'high' : 'low'}
+          decoding="async"
+        />
+      ))}
+
+      {hasMultipleImages && (
+        <div className="absolute bottom-4 right-4 flex gap-1.5 z-10">
+          {images.map((_, idx) => (
+            <span
+              key={idx}
+              className={`h-2 w-2 rounded-full border border-white/80 transition-all ${
+                activeImage === idx ? 'bg-white scale-110' : 'bg-white/45'
+              }`}
+              aria-hidden="true"
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function ProductsView({
   onAddToCart,
   onOpenProductDetail,
@@ -42,7 +101,6 @@ export default function ProductsView({
     setExpandedAccordion(expandedAccordion === categoryId ? '' : categoryId);
     setActiveCategory(categoryId);
     setActiveSubCategory(''); // Default to showing all products of this category
-    scrollToProductsOnMobile();
   };
 
   // Filter products based on search, main category, and subcategory
@@ -133,6 +191,72 @@ export default function ProductsView({
     }, 50);
   };
 
+  const renderProductCard = (product: Product, index: number, isDuplicate = false, isMobile = false) => {
+    const isFav = favorites.includes(product.id);
+    const shouldPrioritizeImage = index < 6;
+
+    return (
+      <div
+        key={`${isMobile ? 'mobile' : 'desktop'}-${product.id}-${index}`}
+        aria-hidden={isDuplicate}
+        className={`group ${isMobile ? 'w-[280px] sm:w-[300px] shrink-0' : 'w-full'} bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 border-2 border-luxury-gold hover:border-secondary flex flex-col cursor-pointer`}
+        onClick={() => onOpenProductDetail(product)}
+      >
+        {/* Image frame */}
+        <div className="relative overflow-hidden aspect-[4/5] bg-white">
+          <ProductImageRotator product={product} shouldPrioritizeImage={shouldPrioritizeImage} />
+
+          {/* Heart Wishlist Toggle */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleFavorite(product.id);
+            }}
+            className="absolute top-4 right-4 p-2.5 bg-white/80 backdrop-blur rounded-full text-primary hover:bg-white hover:text-red-500 transition-colors shadow-sm cursor-pointer z-10"
+            aria-label="Add to Wishlist"
+          >
+            <Heart className={`h-4.5 w-4.5 ${isFav ? 'fill-red-500 text-red-500' : ''}`} />
+          </button>
+
+          {/* Optional promo badges */}
+          {product.tag && (
+            <div className="absolute bottom-4 left-4 bg-secondary text-on-secondary text-[10px] uppercase font-extrabold tracking-widest px-3.5 py-1 rounded-full shadow-md z-10 border border-white/25">
+              {product.tag}
+            </div>
+          )}
+        </div>
+
+        {/* Content */}
+        <div className="p-6 flex flex-col flex-grow">
+          <div className="flex items-center gap-1.5 mb-1">
+            <Sparkles className="h-3.5 w-3.5 text-secondary shrink-0" />
+            <span className="text-[10px] uppercase font-bold tracking-wider text-secondary">{product.subCategory}</span>
+          </div>
+
+          <h4 className="font-serif font-bold text-lg text-primary mb-1 truncate group-hover:text-secondary transition-colors">
+            {product.name}
+          </h4>
+          <p className="text-on-surface-variant text-xs mb-4 line-clamp-2 leading-relaxed h-8 font-medium">
+            {product.description}
+          </p>
+
+          <div className="mt-auto pt-3 border-t border-secondary/15 flex justify-end items-center">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleQuickAdd(product);
+              }}
+              className="w-full py-2.5 bg-primary hover:bg-secondary hover:text-white text-white rounded-full text-xs font-bold transition-all scale-100 hover:scale-102 active:scale-95 cursor-pointer flex items-center justify-center gap-1.5 shadow-md"
+            >
+              <ShoppingCart className="h-3.5 w-3.5 text-secondary shrink-0" />
+              <span>Add to Cart</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-6 md:px-16 py-12 flex flex-col md:flex-row gap-8 min-h-screen">
       
@@ -154,7 +278,6 @@ export default function ProductsView({
                 setActiveCategory('All');
                 setActiveSubCategory('');
                 setExpandedAccordion('');
-                scrollToProductsOnMobile();
               }}
               className={`w-full flex items-center justify-between p-3 rounded-xl transition-all duration-300 cursor-pointer ${
                 activeCategory === 'All'
@@ -285,7 +408,6 @@ export default function ProductsView({
                     setActiveCategory(mappedCat);
                     setExpandedAccordion(mappedCat === 'All' ? '' : mappedCat);
                     setActiveSubCategory('');
-                    scrollToProductsOnMobile();
                   }}
                   className={`px-6 py-2 rounded-full text-sm font-bold shadow-sm transition-all cursor-pointer ${
                     isSelected
@@ -358,80 +480,23 @@ export default function ProductsView({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -12 }}
               transition={{ duration: 0.25, ease: "easeOut" }}
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6"
+              className="py-4"
             >
-              {visibleProducts.map((product, index) => {
-                const isFav = favorites.includes(product.id);
-                const shouldPrioritizeImage = index < 6;
+              <div className="md:hidden w-full overflow-x-auto overflow-y-hidden hide-scrollbar touch-pan-x touch-pan-y overscroll-x-contain">
+                <div className="flex w-max gap-6 px-1 animate-marquee hover:pause-marquee active:pause-marquee focus-within:pause-marquee [will-change:transform]">
+                  {[...visibleProducts, ...visibleProducts].map((product, index) =>
+                    renderProductCard(product, index, index >= visibleProducts.length, true)
+                  )}
+                </div>
+              </div>
 
-                return (
-                  <div
-                    key={product.id}
-                    className="group bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 border-2 border-luxury-gold hover:border-secondary flex flex-col cursor-pointer"
-                    onClick={() => onOpenProductDetail(product)}
-                  >
-                    {/* Image frame */}
-                    <div className="relative overflow-hidden aspect-square bg-surface-container-low">
-                      <img 
-                        alt={product.name}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
-                        src={product.image || null}
-                        loading={shouldPrioritizeImage ? 'eager' : 'lazy'}
-                        fetchPriority={shouldPrioritizeImage ? 'high' : 'low'}
-                        decoding="async"
-                      />
-                      
-                      {/* Heart Wishlist Toggle */}
-                      <button 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onToggleFavorite(product.id);
-                        }}
-                        className="absolute top-4 right-4 p-2.5 bg-white/80 backdrop-blur rounded-full text-primary hover:bg-white hover:text-red-500 transition-colors shadow-sm cursor-pointer z-10"
-                        aria-label="Add to Wishlist"
-                      >
-                        <Heart className={`h-4.5 w-4.5 ${isFav ? 'fill-red-500 text-red-500' : ''}`} />
-                      </button>
+              <div className="hidden md:grid md:grid-cols-2 xl:grid-cols-3 gap-6">
+                {[...visibleProducts, ...visibleProducts].map((product, index) => {
+                  const isDuplicate = index >= visibleProducts.length;
 
-                      {/* Optional promo badges */}
-                      {product.tag && (
-                        <div className="absolute bottom-4 left-4 bg-secondary text-on-secondary text-[10px] uppercase font-extrabold tracking-widest px-3.5 py-1 rounded-full shadow-md z-10 border border-white/25">
-                          {product.tag}
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Content */}
-                    <div className="p-6 flex flex-col flex-grow">
-                      <div className="flex items-center gap-1.5 mb-1">
-                        <Sparkles className="h-3.5 w-3.5 text-secondary shrink-0" />
-                        <span className="text-[10px] uppercase font-bold tracking-wider text-secondary">{product.subCategory}</span>
-                      </div>
-                      
-                      <h4 className="font-serif font-bold text-lg text-primary mb-1 truncate group-hover:text-secondary transition-colors">
-                        {product.name}
-                      </h4>
-                      <p className="text-on-surface-variant text-xs mb-4 line-clamp-2 leading-relaxed h-8 font-medium">
-                        {product.description}
-                      </p>
-
-                      <div className="mt-auto pt-3 border-t border-secondary/15 flex justify-end items-center">
-                        <button 
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleQuickAdd(product);
-                          }}
-                          className="w-full py-2.5 bg-primary hover:bg-secondary hover:text-white text-white rounded-full text-xs font-bold transition-all scale-100 hover:scale-102 active:scale-95 cursor-pointer flex items-center justify-center gap-1.5 shadow-md"
-                        >
-                          <ShoppingCart className="h-3.5 w-3.5 text-secondary shrink-0" />
-                          <span>Add to Cart</span>
-                        </button>
-                      </div>
-
-                    </div>
-                  </div>
-                );
-              })}
+                  return isDuplicate ? null : renderProductCard(product, index);
+                })}
+              </div>
             </motion.div>
           )}
         </AnimatePresence>

@@ -97,9 +97,8 @@ const HAIRCARE_PRODUCTS_CONFIG = {
     { name: 'Dark Brown Hair Colour', price: 449, tag: undefined }
   ],
   'Hair Mask': [
-    { name: '5 Protein Mask', price: 599, tag: 'Bestseller' as const },
+    { name: '5 Protein Hair Mask', price: 599, tag: 'Bestseller' as const },
     { name: 'Hibiscus Dandruff Mask', price: 549, tag: undefined },
-    { name: 'Avocado Butter (Hair)', price: 625, tag: 'Handcrafted' as const },
     { name: 'Total Repair Mask', price: 599, tag: undefined },
     { name: 'Deep Conditioner Masque', price: 649, tag: 'Limited Edition' as const }
   ],
@@ -334,7 +333,12 @@ const MANUAL_OVERRIDES: Record<string, string> = {
   'D-Tan Facial Bomb': './assests/products/PersonalCare/ facial bomb/FACIAL BOMB1.png',
   'Kumkumadi Facial Bomb': './assests/products/PersonalCare/ facial bomb/FACIAL BOMB2.png',
   'Shea Butter Facial Bomb': './assests/products/PersonalCare/ facial bomb/FACIAL BOMB1.png',
-  'Avocado Butter (Hair)': './assests/products/HairCare/Hair mask/5 Protein Hair Mask2.png'
+  '5 Protein Hair Mask': './assests/products/HairCare/Hair mask/5 Protein Hair Mask2.png',
+  'Anti Pigment Dry Face Pack': './assests/products/SkinCare/face pack/Anti Pigmentation Dry Face Pack1.png',
+  'Anti Acne Dry Face Pack': './assests/products/SkinCare/face pack/ANTI-PIMPLE PACK Neem Tulsi Pack1.png',
+  'Charcoal Dry Face Pack': './assests/products/SkinCare/face pack/CHARCOAL FACE PACK1.png',
+  'Skin Whitening Clay': './assests/products/SkinCare/face pack/KOREAN WHITENING PACK1.png',
+  'Anti Wrinkle Dry Face Pack': './assests/products/SkinCare/face pack/Premium Anti Aging Dry Face Pack1.png'
 };
 
 function normalize(str: string): string {
@@ -349,7 +353,18 @@ function resolveProductImages(name: string, category: string, subCategory: strin
   if (MANUAL_OVERRIDES[name]) {
     const overridePath = MANUAL_OVERRIDES[name];
     if (globbedImages[overridePath]) {
-      return [globbedImages[overridePath]];
+      // Also look for a companion image (e.g. swap "1.png" ↔ "2.png")
+      const siblingPath = overridePath.replace(/(\d+)(\.[^.]+)$/, (_, n, ext) => `${n === '1' ? '2' : '1'}${ext}`);
+      const imgs = [globbedImages[overridePath]];
+      if (siblingPath !== overridePath && globbedImages[siblingPath]) {
+        // Insert in natural order (1 first)
+        if (overridePath.endsWith('2.png') || overridePath.endsWith('2.jpg') || overridePath.endsWith('2.jpeg')) {
+          imgs.unshift(globbedImages[siblingPath]);
+        } else {
+          imgs.push(globbedImages[siblingPath]);
+        }
+      }
+      return imgs;
     }
   }
 
@@ -418,12 +433,16 @@ function resolveProductImages(name: string, category: string, subCategory: strin
   matches.sort((a, b) => b.score - a.score);
   
   const bestMatch = matches[0];
+  // Group images that share the same digit-stripped base name as the best match
+  // e.g. "ANTI ACNE GEL1" and "ANTI ACNE GEL2" both strip to "antiacnegel"
   const relatedImages = matches
     .filter(m => m.normFile === bestMatch.normFile)
     .sort((a, b) => a.path.localeCompare(b.path))
     .map(m => globbedImages[m.path]);
   
-  return Array.from(new Set(relatedImages)).slice(0, 2);
+  const unique = Array.from(new Set(relatedImages));
+  // Ensure we have at most 2, in filename order (1 before 2)
+  return unique.slice(0, 2);
 }
 
 function generateProduct(

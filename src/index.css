@@ -78,6 +78,10 @@
   animation: marquee 180s linear infinite;
 }
 
+@utility animate-review-marquee {
+  animation: marquee 75s linear infinite;
+}
+
 @utility pause-marquee {
   animation-play-state: paused;
 }

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { motion } from 'motion/react';
 import { Sprout, MessageSquare, ShieldCheck, Heart, ShoppingBag, CheckCircle, Sparkles, Star, ChevronLeft, ChevronRight, UserCheck } from 'lucide-react';
 import { Product, Review } from '../types';
@@ -31,6 +32,57 @@ const getDummyAvatar = (author: string) => {
 
   return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
 };
+
+function FeaturedProductImageRotator({ product }: { product: Product }) {
+  const images = product.images?.length ? product.images : [product.image];
+  const hasMultipleImages = images.length > 1;
+  const [isHovered, setIsHovered] = useState(false);
+  const activeImage = isHovered && hasMultipleImages ? 1 : 0;
+
+  const showHoverImage = () => {
+    if (!hasMultipleImages) return;
+    setIsHovered(true);
+  };
+
+  const restorePrimaryImage = () => {
+    setIsHovered(false);
+  };
+
+  return (
+    <div
+      className="absolute inset-0"
+      onMouseEnter={showHoverImage}
+      onMouseLeave={restorePrimaryImage}
+      onFocus={showHoverImage}
+      onBlur={restorePrimaryImage}
+    >
+      {images.map((image, idx) => (
+        <img
+          key={`${product.id}-featured-${idx}`}
+          alt={idx === 0 ? product.name : `${product.name} view ${idx + 1}`}
+          className={`absolute inset-0 h-full w-full object-contain object-center transition-opacity duration-700 ${
+            activeImage === idx ? 'opacity-100' : 'opacity-0'
+          }`}
+          src={image || null}
+        />
+      ))}
+
+      {hasMultipleImages && (
+        <div className="absolute bottom-4 right-4 flex gap-1.5 z-10">
+          {images.map((_, idx) => (
+            <span
+              key={idx}
+              className={`h-2 w-2 rounded-full border border-white/80 transition-all ${
+                activeImage === idx ? 'bg-white scale-110' : 'bg-white/45'
+              }`}
+              aria-hidden="true"
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 interface HomeViewProps {
   setCurrentTab: (tab: string) => void;
@@ -73,12 +125,8 @@ export default function HomeView({
         className={`${isMobile ? 'w-[280px] shrink-0' : 'w-full'} group bg-white rounded-2xl overflow-hidden border-2 border-luxury-gold shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col cursor-pointer`}
         onClick={() => onOpenProductDetail(product)}
       >
-        <div className="aspect-[4/5] bg-surface-container relative overflow-hidden">
-          <img 
-            alt={product.name}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
-            src={product.image || null}
-          />
+        <div className="aspect-[4/5] bg-white relative overflow-hidden">
+          <FeaturedProductImageRotator product={product} />
           
           {/* Favorite Heart Trigger */}
           <button 
@@ -94,10 +142,12 @@ export default function HomeView({
 
           {/* Tag badge */}
           {product.tag && (
-            <div className="absolute bottom-4 left-4 bg-secondary text-white text-[10px] uppercase font-extrabold tracking-widest px-3.5 py-1 rounded-full shadow-md border border-white/20">
+            <div className="absolute bottom-4 left-4 bg-secondary text-white text-[10px] uppercase font-extrabold tracking-widest px-3.5 py-1 rounded-full shadow-md border border-white/20 z-10">
               {product.tag}
             </div>
           )}
+
+          {/* Two-photo dot indicators */}
         </div>
 
         <div className="p-6 flex flex-col flex-grow border-t border-secondary/15">
@@ -279,17 +329,14 @@ export default function HomeView({
             </p>
           </div>
 
-          {/* Infinite Marquee Review Ticker */}
-          <div className="w-full overflow-hidden py-4 relative">
-            {/* Left and Right ambient gradients for smooth fade out at edges */}
-            <div className="absolute left-0 top-0 bottom-0 w-16 sm:w-32 bg-gradient-to-r from-surface-container-low via-surface-container-low/80 to-transparent z-10 pointer-events-none" />
-            <div className="absolute right-0 top-0 bottom-0 w-16 sm:w-32 bg-gradient-to-l from-surface-container-low via-surface-container-low/80 to-transparent z-10 pointer-events-none" />
-            
-            <div className="flex w-max gap-6 animate-marquee hover:pause-marquee active:pause-marquee focus:pause-marquee focus-within:pause-marquee touch-pan-y">
-              {[...REVIEWS, ...REVIEWS, ...REVIEWS, ...REVIEWS].map((review, idx) => (
+          {/* Auto-moving review list, still horizontally scrollable and pausable */}
+          <div className="w-full overflow-x-auto overflow-y-hidden hide-scrollbar py-4 touch-pan-x touch-pan-y overscroll-x-contain">
+            <div className="flex w-max gap-6 px-1 animate-review-marquee hover:pause-marquee active:pause-marquee focus-within:pause-marquee [will-change:transform]">
+              {[...REVIEWS, ...REVIEWS].map((review, idx) => (
                 <div
                   key={`${review.id}-${idx}`}
-                  className="w-[300px] sm:w-[380px] bg-white p-6 sm:p-8 rounded-3xl shadow-md border-2 border-luxury-gold flex flex-col justify-between hover:shadow-xl hover:border-secondary transition-all duration-300 shrink-0 relative select-none"
+                  aria-hidden={idx >= REVIEWS.length}
+                  className="w-[300px] sm:w-[420px] min-h-[420px] bg-white p-6 sm:p-8 rounded-3xl shadow-md border-2 border-luxury-gold flex flex-col justify-between hover:shadow-xl hover:border-secondary transition-all duration-300 shrink-0 relative select-none"
                 >
                   {/* Decorative big quotes */}
                   <div className="absolute top-4 right-6 font-serif text-5xl text-secondary/15 select-none font-bold">
@@ -414,13 +461,10 @@ export default function HomeView({
           </div>
 
           {/* Mobile Featured Products Marquee */}
-          <div className="sm:hidden w-full overflow-hidden py-4 relative">
-            <div className="absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-background via-background/80 to-transparent z-10 pointer-events-none" />
-            <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-background via-background/80 to-transparent z-10 pointer-events-none" />
-            
-            <div className="flex w-max gap-4 animate-marquee hover:pause-marquee active:pause-marquee focus:pause-marquee focus-within:pause-marquee touch-pan-y">
+          <div className="sm:hidden w-full overflow-x-auto overflow-y-hidden hide-scrollbar py-4 touch-pan-x touch-pan-y overscroll-x-contain">
+            <div className="flex w-max gap-4 animate-marquee hover:pause-marquee active:pause-marquee focus:pause-marquee focus-within:pause-marquee [will-change:transform]">
               {[...featuredProducts, ...featuredProducts].map((product, idx) => 
-                renderFeaturedProductCard(product, `mobile-${product.id}-${idx}`, true)
+                renderFeaturedProductCard(product, `featured-${product.id}-${idx}`, true)
               )}
             </div>
           </div>

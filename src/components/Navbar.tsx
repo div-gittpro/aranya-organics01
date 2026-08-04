@@ -1,4 +1,5 @@
-import { ShoppingCart, Search, Menu, Sparkles } from 'lucide-react';
+import { useState } from 'react';
+import { ShoppingCart, Search, Menu, X, Home, ShoppingBag, Leaf, UserRound, ChevronRight } from 'lucide-react';
 import { CartItem } from '../types';
 import Logo from './Logo';
 
@@ -19,7 +20,20 @@ export default function Navbar({
   searchQuery,
   setSearchQuery,
 }: NavbarProps) {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const cartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
+  const navItems = [
+    { id: 'home', label: 'Home', mobileLabel: 'Home', icon: Home },
+    { id: 'products', label: 'Products', mobileLabel: 'Products', icon: ShoppingBag },
+    { id: 'about', label: 'About Us', mobileLabel: 'About Us', icon: Leaf },
+    { id: 'consultation', label: 'Consultation', mobileLabel: 'Personalised Consultation', icon: UserRound },
+  ];
+
+  const navigateToTab = (tab: string) => {
+    setCurrentTab(tab);
+    setIsMobileMenuOpen(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   return (
     <header className="bg-background/95 backdrop-blur-md sticky top-0 left-0 right-0 z-50 border-b-2 border-secondary/20 transition-all duration-300 shadow-sm">
@@ -37,18 +51,10 @@ export default function Navbar({
 
         {/* Desktop Navigation Links */}
         <ul className="hidden md:flex items-center gap-8">
-          {[
-            { id: 'home', label: 'Home' },
-            { id: 'products', label: 'Products' },
-            { id: 'about', label: 'About Us' },
-            { id: 'consultation', label: 'Consultation' },
-          ].map((item) => (
+          {navItems.map((item) => (
             <li key={item.id}>
               <button
-                onClick={() => {
-                  setCurrentTab(item.id);
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                }}
+                onClick={() => navigateToTab(item.id)}
                 className={`font-sans text-sm font-bold tracking-wide transition-all duration-200 cursor-pointer pb-1 border-b-2 ${
                   currentTab === item.id
                     ? 'text-primary border-secondary font-extrabold'
@@ -96,14 +102,63 @@ export default function Navbar({
 
           {/* Mobile Menu trigger */}
           <button 
-            onClick={() => setCurrentTab('products')}
+            onClick={() => setIsMobileMenuOpen(true)}
             className="md:hidden p-2 text-primary hover:bg-surface-container rounded-full transition-all"
-            aria-label="Products Page"
+            aria-label="Open navigation menu"
+            aria-expanded={isMobileMenuOpen}
           >
             <Menu className="h-6 w-6" />
           </button>
         </div>
       </nav>
+
+      {isMobileMenuOpen && (
+        <div className="md:hidden fixed inset-0 z-[80]">
+          <button
+            type="button"
+            className="absolute inset-0 bg-primary/30 cursor-default"
+            onClick={() => setIsMobileMenuOpen(false)}
+            aria-label="Close navigation menu"
+          />
+
+          <aside className="absolute right-0 top-0 h-dvh w-[86vw] max-w-sm bg-background shadow-2xl border-l border-secondary/20 px-6 py-7">
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="p-2 text-primary hover:bg-surface-container rounded-full transition-all cursor-pointer"
+                aria-label="Close navigation menu"
+              >
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+
+            <div className="mt-7 border-t border-secondary/15">
+              {navItems.map((item) => {
+                const Icon = item.icon;
+                const isActive = currentTab === item.id;
+
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => navigateToTab(item.id)}
+                    className={`w-full min-h-16 flex items-center gap-4 border-b border-secondary/15 text-left transition-all cursor-pointer ${
+                      isActive ? 'text-primary bg-secondary/5' : 'text-on-surface-variant hover:text-primary hover:bg-surface-container/70'
+                    }`}
+                  >
+                    <Icon className="h-5 w-5 shrink-0" />
+                    <span className="flex-1 text-sm font-extrabold font-sans">
+                      {item.mobileLabel}
+                    </span>
+                    <ChevronRight className="h-5 w-5 shrink-0" />
+                  </button>
+                );
+              })}
+            </div>
+          </aside>
+        </div>
+      )}
     </header>
   );
 }

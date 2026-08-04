@@ -72,8 +72,10 @@ export default function Footer({ setCurrentTab, onReplayIntro }: FooterProps) {
           <ul className="space-y-2 text-xs">
             {[
               { id: 'terms', label: 'Terms & Conditions' },
-              { id: 'returns', label: 'Return Policy' },
-              { id: 'shipping', label: 'Shipping Policy' },
+              { id: 'privacy', label: 'Privacy Policy' },
+              { id: 'returns', label: 'Refund & Cancellation Policy' },
+              { id: 'shipping', label: 'Shipping & Delivery Policy' },
+              { id: 'consultation-disclaimer', label: 'Consultation Disclaimer' },
             ].map((link) => (
               <li key={link.id}>
                 <button
