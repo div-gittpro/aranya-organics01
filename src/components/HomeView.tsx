@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'motion/react';
-import { Sprout, MessageSquare, ShieldCheck, Heart, ShoppingBag, CheckCircle, Sparkles, Star, ChevronLeft, ChevronRight, UserCheck } from 'lucide-react';
+import { Sprout, MessageSquare, ShieldCheck, Heart, ShoppingBag, CheckCircle, Sparkles, Star, ChevronLeft, ChevronRight, UserCheck, Gift, Tag, Flame } from 'lucide-react';
 import { Product, Review } from '../types';
-import { PRODUCTS, REVIEWS } from '../data';
+import { PRODUCTS, REVIEWS, GIFT_BASKET_PRODUCTS } from '../data';
 import { getWhatsAppUrl } from '../companyInfo';
 const homeImages = import.meta.glob('../assests/*.{png,jpg,jpeg}', { eager: true, import: 'default' }) as Record<string, string>;
 const heroProduct = homeImages['../assests/hero_product.jpeg'];
@@ -84,6 +84,129 @@ function FeaturedProductImageRotator({ product }: { product: Product }) {
   );
 }
 
+interface GiftBasketSectionProps {
+  favorites: string[];
+  onAddToCart: (product: Product, quantity?: number) => void;
+  onOpenProductDetail: (product: Product) => void;
+  onToggleFavorite: (id: string) => void;
+  setCurrentTab: (tab: string) => void;
+}
+
+function GiftBasketSection({
+  favorites,
+  onAddToCart,
+  onOpenProductDetail,
+  onToggleFavorite,
+  setCurrentTab,
+}: GiftBasketSectionProps) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const scrollLeft = () => scrollRef.current?.scrollBy({ left: -320, behavior: 'smooth' });
+  const scrollRight = () => scrollRef.current?.scrollBy({ left: 320, behavior: 'smooth' });
+
+  return (
+    <section className="py-24 relative overflow-hidden border-t border-b border-secondary/20" style={{ background: 'linear-gradient(135deg, #0a3b31 0%, #0d4a3a 40%, #1a5e49 70%, #0a3b31 100%)' }}>
+      <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full opacity-20 pointer-events-none" style={{ background: 'radial-gradient(circle, #c5a059 0%, transparent 70%)' }} />
+      <div className="absolute -bottom-16 -left-16 w-72 h-72 rounded-full opacity-15 pointer-events-none" style={{ background: 'radial-gradient(circle, #c5a059 0%, transparent 70%)' }} />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full opacity-5 pointer-events-none border-2 border-white" />
+
+      <div className="max-w-7xl mx-auto px-6 md:px-16 relative z-10">
+        {/* Header */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
+          <div className="space-y-3">
+            <div className="flex flex-wrap items-center gap-3">
+              <motion.div
+                animate={{ scale: [1, 1.05, 1] }}
+                transition={{ repeat: Infinity, duration: 2 }}
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[10px] font-extrabold uppercase tracking-widest border"
+                style={{ background: 'rgba(197,160,89,0.2)', borderColor: 'rgba(197,160,89,0.5)', color: '#c5a059' }}
+              >
+                <Flame className="h-3.5 w-3.5" />
+                Limited-Time Offer
+              </motion.div>
+            </div>
+            <h2 className="font-serif text-4xl md:text-5xl font-bold text-white leading-tight">
+              Exclusive Gift <span style={{ color: '#c5a059' }}>Baskets</span>
+            </h2>
+            <p className="text-white/70 font-sans text-sm md:text-base max-w-lg">
+              Curated organic bundles for every skin need — beautifully gift-wrapped and ready to delight.
+            </p>
+          </div>
+
+        </div>
+
+        {/* Scrollable Cards */}
+        <div className="relative">
+          <button onClick={scrollLeft} className="absolute -left-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full flex items-center justify-center shadow-xl border border-white/20 backdrop-blur-md transition-all hover:scale-110 cursor-pointer" style={{ background: 'rgba(197,160,89,0.25)' }} aria-label="Scroll left">
+            <ChevronLeft className="h-5 w-5 text-white" />
+          </button>
+          <button onClick={scrollRight} className="absolute -right-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full flex items-center justify-center shadow-xl border border-white/20 backdrop-blur-md transition-all hover:scale-110 cursor-pointer" style={{ background: 'rgba(197,160,89,0.25)' }} aria-label="Scroll right">
+            <ChevronRight className="h-5 w-5 text-white" />
+          </button>
+
+          <div ref={scrollRef} className="flex gap-5 overflow-x-auto hide-scrollbar pb-4 snap-x snap-mandatory scroll-px-2">
+            {GIFT_BASKET_PRODUCTS.map((product, idx) => {
+              const isFav = favorites.includes(product.id);
+              return (
+                <motion.div
+                  key={product.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: idx * 0.06, duration: 0.5 }}
+                  className="snap-start shrink-0 w-[300px] sm:w-[340px] rounded-3xl overflow-hidden flex flex-col group cursor-pointer border border-white/10 hover:border-white/30 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
+                  style={{ background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(12px)' }}
+                  onClick={() => onOpenProductDetail(product)}
+                >
+                  <div className="relative aspect-square overflow-hidden bg-white">
+                    {product.image ? (
+                      <img src={product.image} alt={product.name} className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center"><Gift className="h-16 w-16 text-primary/20" /></div>
+                    )}
+                  </div>
+                  <div className="p-5 flex flex-col flex-grow gap-3">
+                    <div>
+                      <h3 className="font-serif font-bold text-white text-sm leading-snug group-hover:text-[#c5a059] transition-colors line-clamp-2">{product.name}</h3>
+                      <p className="text-white/55 text-xs mt-1 line-clamp-2 font-medium">{product.description}</p>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      {[...Array(5)].map((_, i) => (
+                        <Star key={i} className={`h-3 w-3 ${i < Math.round(product.rating) ? 'fill-[#c5a059] text-[#c5a059]' : 'text-white/20'}`} />
+                      ))}
+                      <span className="text-[10px] text-white/40 ml-1 font-bold">{product.rating}</span>
+                    </div>
+                    <div className="flex items-center justify-end mt-auto pt-3 border-t border-white/10">
+                      <button onClick={(e) => { e.stopPropagation(); onAddToCart(product, 1); }} className="w-full py-2 rounded-full font-bold text-xs flex items-center justify-center gap-1.5 transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg cursor-pointer" style={{ background: '#c5a059', color: '#0a3b31' }} aria-label="Add to Cart">
+                        <ShoppingBag className="h-3.5 w-3.5" />
+                        Add to Cart
+                      </button>
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* CTA */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-10">
+          <button onClick={() => setCurrentTab('products')} className="px-8 py-3.5 rounded-full font-bold text-sm uppercase tracking-wider transition-all duration-300 hover:scale-105 active:scale-95 shadow-xl cursor-pointer" style={{ background: '#c5a059', color: '#0a3b31' }}>
+            Shop All Gift Baskets
+          </button>
+          <button
+            onClick={() => { const msg = "Hello Aranya Organic! I'm interested in your exclusive gift baskets. Could you share more details?"; window.open(getWhatsAppUrl(msg), '_blank'); }}
+            className="px-8 py-3.5 rounded-full font-bold text-sm uppercase tracking-wider border-2 border-white/30 text-white hover:bg-white/10 transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer flex items-center gap-2"
+          >
+            <MessageSquare className="h-4 w-4" />
+            Enquire on WhatsApp
+          </button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 interface HomeViewProps {
   setCurrentTab: (tab: string) => void;
   onAddToCart: (product: Product, quantity?: number) => void;
@@ -101,16 +224,14 @@ export default function HomeView({
 }: HomeViewProps) {
   // Filter the user-requested featured products for the home page
   const featuredProductKeywords = [
-    'avocado cream with spf',
-    'vitamin-c serum',
-    '5 protein mask',
     '35 herbs shampoo',
-    '35 herb shampoo',
-    'rosemary hair oil',
     'rosemary hibiscus oil',
-    'rosemary hibiscus hair oil',
     'korean whitening cream',
-    'pearl pigment cream'
+    'vitamin c serum',
+    '5 protein hair mask',
+    'avocado cream',
+    'pearl cream',
+    'keratin infused hair serum'
   ];
 
   const featuredProducts = PRODUCTS.filter(p => 
@@ -128,18 +249,6 @@ export default function HomeView({
         <div className="aspect-[4/5] bg-white relative overflow-hidden">
           <FeaturedProductImageRotator product={product} />
           
-          {/* Favorite Heart Trigger */}
-          <button 
-            onClick={(e) => {
-              e.stopPropagation();
-              onToggleFavorite(product.id);
-            }}
-            className="absolute top-4 right-4 w-10 h-10 bg-white/80 backdrop-blur rounded-full flex items-center justify-center text-primary transition-all hover:bg-white hover:text-red-500 active:scale-90 shadow-sm cursor-pointer z-10"
-            aria-label="Add to Wishlist"
-          >
-            <Heart className={`h-5 w-5 ${isFav ? 'fill-red-500 text-red-500' : ''}`} />
-          </button>
-
           {/* Tag badge */}
           {product.tag && (
             <div className="absolute bottom-4 left-4 bg-secondary text-white text-[10px] uppercase font-extrabold tracking-widest px-3.5 py-1 rounded-full shadow-md border border-white/20 z-10">
@@ -477,6 +586,16 @@ export default function HomeView({
           </div>
         </div>
       </section>
+
+      {/* 6. Personalized Skincare Consultation Section */}
+      {/* ─── LIMITED-TIME OFFER: Gift Baskets ─────────────────────────── */}
+      <GiftBasketSection
+        favorites={favorites}
+        onAddToCart={onAddToCart}
+        onOpenProductDetail={onOpenProductDetail}
+        onToggleFavorite={onToggleFavorite}
+        setCurrentTab={setCurrentTab}
+      />
 
       {/* 6. Personalized Skincare Consultation Section */}
       <section id="consultation-section" className="py-24 bg-primary text-white overflow-hidden relative border-t border-b border-primary-container">

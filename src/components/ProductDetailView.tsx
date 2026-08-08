@@ -187,13 +187,6 @@ export default function ProductDetailView({
                 <h1 className="font-serif text-4xl md:text-5xl text-primary font-bold leading-tight">
                   {product.name}
                 </h1>
-                <button
-                  onClick={() => onToggleFavorite(product.id)}
-                  className="w-11 h-11 rounded-full bg-white border border-secondary/20 shadow-sm flex items-center justify-center text-primary hover:text-red-500 transition-colors cursor-pointer shrink-0"
-                  aria-label="Add to wishlist"
-                >
-                  <Heart className={`h-5 w-5 ${isFav ? 'fill-red-500 text-red-500' : ''}`} />
-                </button>
               </div>
 
               <div className="flex items-center gap-2">

@@ -480,15 +480,6 @@ export default function ConsultationView({
                                 <h4 className="font-bold text-sm text-primary truncate group-hover:text-secondary transition-colors">
                                   {prod.name}
                                 </h4>
-                                <button 
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    onToggleFavorite(prod.id);
-                                  }}
-                                  className="text-on-surface-variant hover:text-red-500 transition-colors p-0.5 shrink-0"
-                                >
-                                  <Heart className={`h-4 w-4 ${isFav ? 'fill-red-500 text-red-500' : ''}`} />
-                                </button>
                               </div>
                               <p className="text-on-surface-variant font-sans text-xs mt-1 line-clamp-2">
                                 {prod.description}

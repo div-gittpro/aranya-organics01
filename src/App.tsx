@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Sparkles, Heart, Bell, MessageSquare, ShoppingBag, X } from 'lucide-react';
+import { Sparkles, Heart, Bell, MessageSquare, ShoppingBag, X, ArrowLeft } from 'lucide-react';
 
 import { Product, CartItem } from './types';
 import Navbar from './components/Navbar';
@@ -17,16 +17,40 @@ import ShippingView from './components/ShippingView';
 import PrivacyView from './components/PrivacyView';
 import ConsultationDisclaimerView from './components/ConsultationDisclaimerView';
 import ProductDetailView from './components/ProductDetailView';
+import Seo from './components/Seo';
 import { MAX_RETAIL_QUANTITY } from './companyInfo';
+
+const crawlerPattern = /bot|crawler|spider|crawling|googlebot|bingbot|slurp|duckduckbot|baiduspider|yandex/i;
 
 export default function App() {
   // Global Navigation states
-  const [currentTab, setCurrentTab] = useState<string>('home');
+  const [currentTab, setCurrentTabRaw] = useState<string>('home');
   const [isCartOpen, setIsCartOpen] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>('');
-  
+
+  // Navigation history for back button
+  const [navHistory, setNavHistory] = useState<string[]>(['home']);
+
+  const setCurrentTab = (tab: string) => {
+    setNavHistory((prev) => {
+      if (prev[prev.length - 1] === tab) return prev;
+      return [...prev, tab];
+    });
+    setCurrentTabRaw(tab);
+  };
+
+  const goBack = () => {
+    setNavHistory((prev) => {
+      if (prev.length <= 1) return prev;
+      const updated = prev.slice(0, -1);
+      setCurrentTabRaw(updated[updated.length - 1]);
+      return updated;
+    });
+  };
+
+  const canGoBack = navHistory.length > 1;
   // Intro show/hide state (shown on every page reload)
-  const [showIntro, setShowIntro] = useState<boolean>(true);
+  const [showIntro, setShowIntro] = useState<boolean>(() => !crawlerPattern.test(navigator.userAgent));
 
   const handleIntroComplete = () => {
     setShowIntro(false);
@@ -188,6 +212,8 @@ export default function App() {
           transition={{ duration: 1.0, ease: "easeOut" }}
           className="bg-background min-h-screen text-on-background flex flex-col font-sans selection:bg-secondary/20 selection:text-primary"
         >
+          <Seo currentTab={currentTab} selectedProduct={selectedProductDetail} />
+
           {/* 1. Sticky boutique Header */}
           <Navbar 
             currentTab={currentTab}
@@ -197,6 +223,19 @@ export default function App() {
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
           />
+
+          {/* Back Button */}
+          {canGoBack && currentTab !== 'home' && (
+            <div className="max-w-7xl mx-auto px-6 md:px-16 pt-4">
+              <button
+                onClick={goBack}
+                className="inline-flex items-center gap-2 text-primary hover:text-secondary font-bold text-sm transition-colors cursor-pointer"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                <span>Back</span>
+              </button>
+            </div>
+          )}
 
           {/* 2. Main content pages */}
           <main className="flex-grow">

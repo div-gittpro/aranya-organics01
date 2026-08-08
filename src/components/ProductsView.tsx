@@ -199,24 +199,12 @@ export default function ProductsView({
       <div
         key={`${isMobile ? 'mobile' : 'desktop'}-${product.id}-${index}`}
         aria-hidden={isDuplicate}
-        className={`group ${isMobile ? 'w-[280px] sm:w-[300px] shrink-0' : 'w-full'} bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 border-2 border-luxury-gold hover:border-secondary flex flex-col cursor-pointer`}
+        className={`group w-full bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 border-2 border-luxury-gold hover:border-secondary flex flex-col cursor-pointer`}
         onClick={() => onOpenProductDetail(product)}
       >
         {/* Image frame */}
         <div className="relative overflow-hidden aspect-[4/5] bg-white">
           <ProductImageRotator product={product} shouldPrioritizeImage={shouldPrioritizeImage} />
-
-          {/* Heart Wishlist Toggle */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onToggleFavorite(product.id);
-            }}
-            className="absolute top-4 right-4 p-2.5 bg-white/80 backdrop-blur rounded-full text-primary hover:bg-white hover:text-red-500 transition-colors shadow-sm cursor-pointer z-10"
-            aria-label="Add to Wishlist"
-          >
-            <Heart className={`h-4.5 w-4.5 ${isFav ? 'fill-red-500 text-red-500' : ''}`} />
-          </button>
 
           {/* Optional promo badges */}
           {product.tag && (
@@ -398,7 +386,7 @@ export default function ProductsView({
 
           {/* Horizontal main category tags */}
           <div className="flex flex-wrap gap-2 mt-8 justify-center md:justify-start">
-            {['All Products', 'Haircare', 'Skincare', 'Personal Care'].map((cat) => {
+            {['All Products', 'Haircare', 'Skincare', 'Personal Care', 'Gift Baskets'].map((cat) => {
               const isSelected = activeCategory === cat || (cat === 'All Products' && activeCategory === 'All');
               return (
                 <button
@@ -482,12 +470,10 @@ export default function ProductsView({
               transition={{ duration: 0.25, ease: "easeOut" }}
               className="py-4"
             >
-              <div className="md:hidden w-full overflow-x-auto overflow-y-hidden hide-scrollbar touch-pan-x touch-pan-y overscroll-x-contain">
-                <div className="flex w-max gap-6 px-1 animate-marquee hover:pause-marquee active:pause-marquee focus-within:pause-marquee [will-change:transform]">
-                  {[...visibleProducts, ...visibleProducts].map((product, index) =>
-                    renderProductCard(product, index, index >= visibleProducts.length, true)
-                  )}
-                </div>
+              <div className="md:hidden grid grid-cols-1 gap-4">
+                {visibleProducts.map((product, index) =>
+                  renderProductCard(product, index, false, true)
+                )}
               </div>
 
               <div className="hidden md:grid md:grid-cols-2 xl:grid-cols-3 gap-6">

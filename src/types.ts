@@ -3,7 +3,7 @@ export interface Product {
   name: string;
   description: string;
   price: number;
-  category: 'Skincare' | 'Haircare' | 'Personal Care';
+  category: 'Skincare' | 'Haircare' | 'Personal Care' | 'Gift Baskets';
   subCategory?: string;
   image: string;
   images: string[];

@@ -94,29 +94,54 @@ export default function Footer({ setCurrentTab, onReplayIntro }: FooterProps) {
 
         {/* Col 4: Contact details */}
         <div className="space-y-4">
-          <h4 className="font-serif text-lg font-bold text-secondary">Get In Touch</h4>
-          <ul className="space-y-3 text-xs text-on-primary-container font-medium">
+          <h4 className="font-serif text-xl font-bold text-secondary">Get In Touch</h4>
+          <ul className="space-y-4 text-sm text-on-primary-container font-medium">
             <li className="flex items-start gap-3">
-              <MapPin className="h-4 w-4 text-secondary shrink-0 mt-0.5" />
-              <span>{COMPANY_INFO.address}</span>
+              <MapPin className="h-5 w-5 text-secondary shrink-0 mt-0.5" />
+              <a
+                href={COMPANY_INFO.mapsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-secondary transition-colors underline decoration-secondary/30 underline-offset-4"
+              >
+                {COMPANY_INFO.address}
+              </a>
+            </li>
+            <li className="flex items-start gap-3">
+              <Phone className="h-5 w-5 text-secondary shrink-0 mt-0.5" />
+              <div className="flex flex-col gap-1">
+                <a
+                  href={`tel:${COMPANY_INFO.phones[0]}`}
+                  className="hover:text-secondary transition-colors"
+                >
+                  +91 9920308677
+                </a>
+                <a
+                  href={`tel:${COMPANY_INFO.phones[1]}`}
+                  className="hover:text-secondary transition-colors"
+                >
+                  +91 9930318387
+                </a>
+              </div>
             </li>
             <li className="flex items-center gap-3">
-              <Phone className="h-4 w-4 text-secondary shrink-0" />
-              <span>{COMPANY_INFO.phoneDisplay}</span>
+              <Mail className="h-5 w-5 text-secondary shrink-0" />
+              <a
+                href={`mailto:${COMPANY_INFO.email}`}
+                className="hover:text-secondary transition-colors"
+              >
+                {COMPANY_INFO.email}
+              </a>
             </li>
             <li className="flex items-center gap-3">
-              <Mail className="h-4 w-4 text-secondary shrink-0" />
-              <span>{COMPANY_INFO.email}</span>
-            </li>
-            <li className="flex items-center gap-3">
-              <Instagram className="h-4 w-4 text-secondary shrink-0" />
+              <Instagram className="h-5 w-5 text-secondary shrink-0" />
               <a
                 href={COMPANY_INFO.instagram}
                 target="_blank"
-                rel="noreferrer"
-                className="hover:text-secondary transition-colors"
+                rel="noopener noreferrer"
+                className="hover:text-secondary transition-colors font-bold text-base bg-secondary/15 px-3 py-1 rounded-full border border-secondary/30 inline-block text-secondary"
               >
-                Instagram
+                @aranyaorganic_
               </a>
             </li>
           </ul>

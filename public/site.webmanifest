@@ -1,0 +1,11 @@
+{
+  "name": "Aranya Organic",
+  "short_name": "Aranya Organic",
+  "description": "Organic skincare, haircare and personal care products from Mumbai.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f8f4ea",
+  "theme_color": "#0a3b31",
+  "categories": ["beauty", "shopping", "health"]
+}
+
